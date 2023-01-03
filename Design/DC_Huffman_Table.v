@@ -16,49 +16,63 @@ module DC_Huffman_Table (
 
     //Maps input sequence to output values (S-R values)
     always @(*)begin
+        s_value <= 4'd0;
+        r_value <= 4'd0;
         is_valid <= 1'b1;
         
-        if(bit_series[0:1] == 2'b00 && length == 5'd2) begin
-            s_value <= 4'd0;
-            r_value <= 4'd0;
-        end else if(bit_series[0:2] == 3'b010 && length == 5'd3) begin
-            s_value <= 4'd0;
-            r_value <= 4'd1;
-        end else if(bit_series[0:2] == 3'b011 && length == 5'd3) begin
-            s_value <= 4'd0;
-            r_value <= 4'd2;
-        end else if(bit_series[0:2] == 3'b100 && length == 5'd3) begin
-            s_value <= 4'd0;
-            r_value <= 4'd3;
-        end else if(bit_series[0:2] == 3'b101 && length == 5'd3) begin
-            s_value <= 4'd0;
-            r_value <= 4'd4;
-        end else if(bit_series[0:2] == 3'b110 && length == 5'd3) begin
-            s_value <= 4'd0;
-            r_value <= 4'd5;
-        end else if(bit_series[0:3] == 4'b1110 && length == 5'd4) begin
-            s_value <= 4'd0;
-            r_value <= 4'd6;
-        end else if(bit_series[0:4] == 5'b11110 && length == 5'd5) begin
-            s_value <= 4'd0;
-            r_value <= 4'd7;
-        end else if(bit_series[0:5] == 6'b111110 && length == 5'd6) begin
-            s_value <= 4'd0;
-            r_value <= 4'd8;
-        end else if(bit_series[0:6] == 7'b1111110 && length == 5'd7) begin
-            s_value <= 4'd0;
-            r_value <= 4'd9;
-        end else if(bit_series[0:7] == 8'b11111110 && length == 5'd8) begin
-            s_value <= 4'd0;
-            r_value <= 4'd10;
-        end else if(bit_series[0:8] == 9'b111111110 && length == 5'd9) begin
-            s_value <= 4'd0;
-            r_value <= 4'd11;
-        end else begin
-            s_value <= 4'd0;
-            r_value <= 4'd0;
-            is_valid <= 1'b0;
-        end
+        case({bit_series, length})
+             {16'b0000000000000000, 5'd2}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd0;
+             end
+             {16'b0100000000000000, 5'd3}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd1;
+             end
+             {16'b0110000000000000, 5'd3}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd2;
+             end
+             {16'b1000000000000000, 5'd3}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd3;
+             end
+             {16'b1010000000000000, 5'd3}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd4;
+             end
+             {16'b1100000000000000, 5'd3}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd5;
+             end
+             {16'b1110000000000000, 5'd4}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd6;
+             end
+             {16'b1111000000000000, 5'd5}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd7;
+             end
+             {16'b1111100000000000, 5'd6}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd8;
+             end
+             {16'b1111110000000000, 5'd7}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd9;
+             end
+             {16'b1111111000000000, 5'd8}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd10;
+             end
+             {16'b1111111100000000, 5'd9}:begin
+                s_value <= 4'd0;
+                r_value <= 4'd11;
+             end
+             default:begin
+                is_valid <= 1'b0;
+             end
+        endcase
     end
 
 endmodule

@@ -49,7 +49,7 @@ module Huffman_Decoder (
             if(is_new) begin
                 if(bit_index == 5'd0 || done) begin
                     ac_dc_flag_reg <= ac_dc_flag;
-                    bit_series[0] <= next_bit;
+                    bit_series <= {next_bit, 15'b0};
                     bit_index <= 5'd1;
                 end else begin
                     bit_series[bit_index] <= next_bit;
