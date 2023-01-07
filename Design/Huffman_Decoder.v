@@ -17,62 +17,56 @@ module Huffman_Decoder (
 );
 
     //Internal registers 
-    reg ac_dc_flag_reg;     //Select huffman table
-    reg [0:15] bit_series;  //Holds bit sequence
-    reg [4:0] bit_index;    //Holds index that new bit will be placed
+    reg [7:0] state;
     
     //Internal wires
     wire[3:0] ac_s_value, ac_r_value;
     wire[3:0] dc_s_value, dc_r_value;
     wire ac_is_valid, dc_is_valid;
+    wire [7:0] ac_next_state;
+    wire [3:0] dc_next_state;
     
     //Direct AC or DC table results to output depending on the selection
     always @(*)begin
-        if(ac_dc_flag_reg == 1'b0) begin
+        if(ac_dc_flag == 1'b0) begin
             s_value <= ac_s_value;
             r_value <= ac_r_value;
-            done <= ac_is_valid;
+            done <= ac_next_state == 8'b0 ? 1'b1 : 1'b0;
         end else begin
             s_value <= dc_s_value;
             r_value <= dc_r_value;
-            done <= dc_is_valid;
+            done <= dc_next_state[3:0] == 4'b0 ? 1'b1 : 1'b0;
         end
     end
     
     //Places new bits to empty index and reset when decoding is finished
     always @(posedge clk) begin
         if(rst) begin
-            ac_dc_flag_reg <= 1'b0;
-            bit_series <= 16'b0;
-            bit_index <= 5'b0;
+            state <= 8'b0;
         end else begin
             if(is_new) begin
-                if(bit_index == 5'd0 || done) begin
-                    ac_dc_flag_reg <= ac_dc_flag;
-                    bit_series[0] <= next_bit;
-                    bit_index <= 5'd1;
-                end else begin
-                    bit_series[bit_index] <= next_bit;
-                    bit_index <= bit_index + 1;
-                end
+                if(ac_dc_flag == 1'b0)
+                    state <= ac_next_state;
+                else
+                    state[3:0] <= dc_next_state;
             end
         end
     end
     
     AC_Huffman_Table ac_huffman_table(
-        .bit_series(bit_series),
-        .length(bit_index),
+        .bit(next_bit),
+        .state(state),
         .s_value(ac_s_value),
         .r_value(ac_r_value),
-        .is_valid(ac_is_valid)
+        .next_state(ac_next_state)
     );
     
     DC_Huffman_Table dc_huffman_table(
-        .bit_series(bit_series),
-        .length(bit_index),
+        .bit(next_bit),
+        .state(state[3:0]),
         .s_value(dc_s_value),
         .r_value(dc_r_value),
-        .is_valid(dc_is_valid)
+        .next_state(dc_next_state)
     );
     
 endmodule
