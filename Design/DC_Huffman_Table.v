@@ -16,10 +16,10 @@ module DC_Huffman_Table (
 
     //Maps input sequence to output values (S-R values)
     always @(*)begin
-        next_state <= 0;
         s_value <= 4'b0;
         r_value <= 4'b0;    
-        
+        next_state <= 0;
+
         case(state)
             0: begin
                 //none 

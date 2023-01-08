@@ -2,7 +2,7 @@
 
 module Huffman_Decoder_Test;
     //Period of the clock
-    localparam PERIOD = 100;
+    localparam PERIOD = 1000;
 
     //Registers given as input to the module
     reg clk = 1'b0, rst = 1'b0;
