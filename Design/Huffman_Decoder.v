@@ -18,7 +18,7 @@ module Huffman_Decoder (
 
     //Internal registers 
     reg [7:0] state;
-    reg ac_dc_flag_reg, bit_reg, is_startup;
+    reg ac_dc_flag_reg, bit_reg, is_startup, suppress_done;
     
     //Internal wires
     wire[3:0] ac_s_value, ac_r_value;
@@ -31,11 +31,11 @@ module Huffman_Decoder (
         if(ac_dc_flag_reg == 1'b0) begin
             s_value <= ac_s_value;
             r_value <= ac_r_value;
-            done <= ac_next_state == 8'b0 ? 1'b1 : 1'b0;
+            done <= ac_next_state == 8'b0 && suppress_done == 1'b0 ? 1'b1 : 1'b0;
         end else begin
             s_value <= dc_s_value;
             r_value <= dc_r_value;
-            done <= dc_next_state == 4'b0 ? 1'b1 : 1'b0;
+            done <= dc_next_state == 4'b0 && suppress_done == 1'b0 ? 1'b1 : 1'b0;
         end
     end
     
@@ -46,6 +46,7 @@ module Huffman_Decoder (
             ac_dc_flag_reg <= 1'b0;
             bit_reg <= 1'b0;
             is_startup <= 1'b1;
+            suppress_done <= 1'b0;
         end else begin
             if(is_new) begin
                 bit_reg <= next_bit;
@@ -55,6 +56,7 @@ module Huffman_Decoder (
                 end
             
                 if(!is_startup) begin
+                    suppress_done <= 1'b0;
                     if(ac_dc_flag_reg == 1'b0)
                         state <= ac_next_state;
                     else
@@ -63,6 +65,12 @@ module Huffman_Decoder (
 
                 is_startup <= 1'b0;
             end
+            
+            if(ac_dc_flag_reg == 1'b0 && ac_next_state == 8'b0 && suppress_done == 1'b0)
+                suppress_done <= 1'b1;
+                
+            if(ac_dc_flag_reg == 1'b1 && dc_next_state == 4'b0 && suppress_done == 1'b0)
+                suppress_done <= 1'b1;
         end
     end
     

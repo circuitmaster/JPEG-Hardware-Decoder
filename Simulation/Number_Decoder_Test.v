@@ -29,6 +29,9 @@ module Number_Decoder_Test;
         #10
         r_value <= 4'd4;
         coded_number <= 12'b101;
+        #10
+        r_value <= 4'd0;
+        coded_number <= 12'b101;
     end
     
 endmodule
