@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Module Name: DC Huffman Table
-// Description: Maps encoded input sequence into output values (S-R values)
+// Description: Maps encoded input sequence into output values (R-S values)
 //              for DC by using Huffman algorithm
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -9,15 +9,15 @@
 module DC_Huffman_Table (
     input bit,                  //Encoded bit sequence
     input [3:0] state,
-    output reg [3:0] s_value,   //Run length (Count of zeros before number)
-    output reg [3:0] r_value,   //Number length (Bit length of the number after zeros)
+    output reg [3:0] r_value,   //Run length (Count of zeros before number)
+    output reg [3:0] s_value,   //Number length (Bit length of the number after zeros)
     output reg [3:0] next_state
 );
 
     //Maps input sequence to output values (S-R values)
     always @(*)begin
-        s_value <= 4'b0;
-        r_value <= 4'b0;    
+        r_value <= 4'b0;
+        s_value <= 4'b0;    
         next_state <= 0;
 
         case(state)
@@ -32,8 +32,8 @@ module DC_Huffman_Table (
             1: begin
                 //0
                 if(bit == 0) begin
-                    s_value <= 4'd0;
                     r_value <= 4'd0;
+                    s_value <= 4'd0;
                     next_state <= 0;
                 end else begin
                     next_state <= 2;
@@ -42,12 +42,12 @@ module DC_Huffman_Table (
             2: begin
                 //01
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd1;
+                    r_value <= 4'd0;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd2;
+                    r_value <= 4'd0;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -62,20 +62,20 @@ module DC_Huffman_Table (
             4: begin
                 //10
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd3;
+                    r_value <= 4'd0;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd4;
+                    r_value <= 4'd0;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
             5: begin
                 //11
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd5;
+                    r_value <= 4'd0;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
                     next_state <= 6;
@@ -84,8 +84,8 @@ module DC_Huffman_Table (
             6: begin
                 //111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd6;
+                    r_value <= 4'd0;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
                     next_state <= 7;
@@ -94,8 +94,8 @@ module DC_Huffman_Table (
             7: begin
                 //1111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd7;
+                    r_value <= 4'd0;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
                     next_state <= 8;
@@ -104,8 +104,8 @@ module DC_Huffman_Table (
             8: begin
                 //11111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd8;
+                    r_value <= 4'd0;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
                     next_state <= 9;
@@ -114,8 +114,8 @@ module DC_Huffman_Table (
             9: begin
                 //111111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd9;
+                    r_value <= 4'd0;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
                     next_state <= 10;
@@ -124,8 +124,8 @@ module DC_Huffman_Table (
             10: begin
                 //1111111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd10;
+                    r_value <= 4'd0;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
                     next_state <= 11;
@@ -134,8 +134,8 @@ module DC_Huffman_Table (
             11: begin
                 //11111111
                 if(bit == 0)begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd10;
+                    r_value <= 4'd0;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
                     next_state <= 0;

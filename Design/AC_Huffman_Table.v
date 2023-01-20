@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Module Name: AC Huffman Table
-// Description: Maps encoded input sequence into output values (S-R values)
+// Description: Maps encoded input sequence into output values (R-S values)
 //              for AC by using Huffman algorithm
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -9,15 +9,15 @@
 module AC_Huffman_Table (
     input bit,                  //Encoded bit sequence
     input [7:0] state,
-    output reg [3:0] s_value,   //Run length (Count of zeros before number)
-    output reg [3:0] r_value,   //Number length (Bit length of the number after zeros)
+    output reg [3:0] r_value,   //Run length (Count of zeros before number)
+    output reg [3:0] s_value,   //Number length (Bit length of the number after zeros)
     output reg [7:0] next_state
 );
 
     //Maps input sequence to output values (S-R values)
     always @(*)begin
-        s_value <= 4'b0;
         r_value <= 4'b0;
+        s_value <= 4'b0;
         next_state <= 0;
 
         case(state)
@@ -40,8 +40,8 @@ module AC_Huffman_Table (
             2: begin
                 //10
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd3;
+                    r_value <= 4'd0;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
                     next_state <= 3;
@@ -50,24 +50,24 @@ module AC_Huffman_Table (
             3: begin
                 //101
                 if(bit == 0) begin
-                    s_value <= 4'd0;
                     r_value <= 4'd0;
+                    s_value <= 4'd0;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd4;
+                    r_value <= 4'd0;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
             4: begin
                 //0
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd1;
+                    r_value <= 4'd0;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd2;
+                    r_value <= 4'd0;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -82,8 +82,8 @@ module AC_Huffman_Table (
             6: begin
                 //110
                 if(bit == 0) begin
-                    s_value <= 4'd1;
                     r_value <= 4'd1;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
                     next_state <= 7;
@@ -92,12 +92,12 @@ module AC_Huffman_Table (
             7: begin
                 //1101
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd5;
+                    r_value <= 4'd0;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd2;
+                    r_value <= 4'd1;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -128,12 +128,12 @@ module AC_Huffman_Table (
             11: begin
                 //111100
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd6;
+                    r_value <= 4'd0;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd3;
+                    r_value <= 4'd1;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
@@ -156,12 +156,12 @@ module AC_Huffman_Table (
             14: begin
                 //1111100
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd7;
+                    r_value <= 4'd0;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd2;
                     r_value <= 4'd2;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -184,8 +184,8 @@ module AC_Huffman_Table (
             17: begin
                 //11111101
                 if(bit == 0) begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd1;
+                    r_value <= 4'd10;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
                     next_state <= 18;
@@ -194,12 +194,12 @@ module AC_Huffman_Table (
             18: begin
                 //111111011
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd8;
+                    r_value <= 4'd0;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd3;
+                    r_value <= 4'd2;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
@@ -262,8 +262,8 @@ module AC_Huffman_Table (
             26: begin
                 //11111111100000
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd2;
+                    r_value <= 4'd8;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
                     next_state <= 27;
@@ -272,20 +272,20 @@ module AC_Huffman_Table (
             27: begin
                 //111111111000001
                 if(bit == 0) begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd9;
+                    r_value <= 4'd0;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd0;
-                    r_value <= 4'd10;
+                    r_value <= 4'd0;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             28: begin
                 //1111101
                 if(bit == 0) begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd1;
+                    r_value <= 4'd7;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
                     next_state <= 29;
@@ -294,12 +294,12 @@ module AC_Huffman_Table (
             29: begin
                 //11111011
                 if(bit == 0) begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd4;
+                    r_value <= 4'd1;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd2;
+                    r_value <= 4'd3;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -314,8 +314,8 @@ module AC_Huffman_Table (
             31: begin
                 //111111101
                 if(bit == 0) begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd1;
+                    r_value <= 4'd12;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
                     next_state <= 32;
@@ -324,12 +324,12 @@ module AC_Huffman_Table (
             32: begin
                 //1111111011
                 if(bit == 0) begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd5;
+                    r_value <= 4'd1;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd2;
+                    r_value <= 4'd5;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -344,24 +344,24 @@ module AC_Huffman_Table (
             34: begin
                 //111111111000010
                 if(bit == 0) begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd6;
+                    r_value <= 4'd1;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd7;
+                    r_value <= 4'd1;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
             35: begin
                 //111111111000011
                 if(bit == 0) begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd8;
+                    r_value <= 4'd1;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd9;
+                    r_value <= 4'd1;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
@@ -384,20 +384,20 @@ module AC_Huffman_Table (
             38: begin
                 //111111111000100
                 if(bit == 0) begin
-                    s_value <= 4'd1;
-                    r_value <= 4'd10;
+                    r_value <= 4'd1;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd5;
+                    r_value <= 4'd2;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
             39: begin
                 //1110
                 if(bit == 0) begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd1;
+                    r_value <= 4'd2;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
                     next_state <= 47;
@@ -422,24 +422,24 @@ module AC_Huffman_Table (
             42: begin
                 //11111111010
                 if(bit == 0) begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd4;
+                    r_value <= 4'd2;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
                     r_value <= 4'd3;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
             43: begin
                 //111111111000101
                 if(bit == 0) begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd6;
+                    r_value <= 4'd2;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd7;
+                    r_value <= 4'd2;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
@@ -454,36 +454,36 @@ module AC_Huffman_Table (
             45: begin
                 //111111111000110
                 if(bit == 0) begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd8;
+                    r_value <= 4'd2;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd9;
+                    r_value <= 4'd2;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
             46: begin
                 //111111111000111
                 if(bit == 0) begin
-                    s_value <= 4'd2;
-                    r_value <= 4'd10;
+                    r_value <= 4'd2;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd4;
+                    r_value <= 4'd3;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
             47: begin
                 //11101
                 if(bit == 0) begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd1;
+                    r_value <= 4'd3;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd1;
+                    r_value <= 4'd4;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
@@ -514,24 +514,24 @@ module AC_Huffman_Table (
             51: begin
                 //111111111001000
                 if(bit == 0) begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd5;
+                    r_value <= 4'd3;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd6;
+                    r_value <= 4'd3;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             52: begin
                 //111111111001001
                 if(bit == 0) begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd7;
+                    r_value <= 4'd3;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd8;
+                    r_value <= 4'd3;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -546,36 +546,36 @@ module AC_Huffman_Table (
             54: begin
                 //111111111001010
                 if(bit == 0) begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd9;
+                    r_value <= 4'd3;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd3;
-                    r_value <= 4'd10;
+                    r_value <= 4'd3;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             55: begin
                 //111111100
                 if(bit == 0) begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd2;
+                    r_value <= 4'd4;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd1;
+                    r_value <= 4'd11;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
             56: begin
                 //111111111001011
                 if(bit == 0) begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd3;
+                    r_value <= 4'd4;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd4;
                     r_value <= 4'd4;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -598,24 +598,24 @@ module AC_Huffman_Table (
             59: begin
                 //111111111001100
                 if(bit == 0) begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd5;
+                    r_value <= 4'd4;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd6;
+                    r_value <= 4'd4;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             60: begin
                 //111111111001101
                 if(bit == 0) begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd7;
+                    r_value <= 4'd4;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd8;
+                    r_value <= 4'd4;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -630,36 +630,36 @@ module AC_Huffman_Table (
             62: begin
                 //111111111001110
                 if(bit == 0) begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd9;
+                    r_value <= 4'd4;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd4;
-                    r_value <= 4'd10;
+                    r_value <= 4'd4;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             63: begin
                 //111101
                 if(bit == 0) begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd1;
+                    r_value <= 4'd5;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd1;
+                    r_value <= 4'd6;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
             64: begin
                 //111111111001111
                 if(bit == 0) begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd3;
+                    r_value <= 4'd5;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd4;
+                    r_value <= 4'd5;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -698,24 +698,24 @@ module AC_Huffman_Table (
             69: begin
                 //111111111010000
                 if(bit == 0) begin
-                    s_value <= 4'd5;
                     r_value <= 4'd5;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd6;
+                    r_value <= 4'd5;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             70: begin
                 //111111111010001
                 if(bit == 0) begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd7;
+                    r_value <= 4'd5;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd8;
+                    r_value <= 4'd5;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -730,36 +730,36 @@ module AC_Huffman_Table (
             72: begin
                 //111111111010010
                 if(bit == 0) begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd9;
+                    r_value <= 4'd5;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd5;
-                    r_value <= 4'd10;
+                    r_value <= 4'd5;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             73: begin
                 //11111111011
                 if(bit == 0) begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd2;
+                    r_value <= 4'd6;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd2;
+                    r_value <= 4'd7;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
             74: begin
                 //111111111010011
                 if(bit == 0) begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd3;
+                    r_value <= 4'd6;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd4;
+                    r_value <= 4'd6;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -782,24 +782,24 @@ module AC_Huffman_Table (
             77: begin
                 //111111111010100
                 if(bit == 0) begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd5;
+                    r_value <= 4'd6;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd6;
                     r_value <= 4'd6;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             78: begin
                 //111111111010101
                 if(bit == 0) begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd7;
+                    r_value <= 4'd6;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd8;
+                    r_value <= 4'd6;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -814,24 +814,24 @@ module AC_Huffman_Table (
             80: begin
                 //111111111010110
                 if(bit == 0) begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd9;
+                    r_value <= 4'd6;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd6;
-                    r_value <= 4'd10;
+                    r_value <= 4'd6;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             81: begin
                 //111111111010111
                 if(bit == 0) begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd3;
+                    r_value <= 4'd7;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd4;
+                    r_value <= 4'd7;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -862,24 +862,24 @@ module AC_Huffman_Table (
             85: begin
                 //111111111011000
                 if(bit == 0) begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd5;
+                    r_value <= 4'd7;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd6;
+                    r_value <= 4'd7;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             86: begin
                 //111111111011001
                 if(bit == 0) begin
-                    s_value <= 4'd7;
                     r_value <= 4'd7;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd8;
+                    r_value <= 4'd7;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -894,36 +894,36 @@ module AC_Huffman_Table (
             88: begin
                 //111111111011010
                 if(bit == 0) begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd9;
+                    r_value <= 4'd7;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd7;
-                    r_value <= 4'd10;
+                    r_value <= 4'd7;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             89: begin
                 //11111100
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd1;
+                    r_value <= 4'd8;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd1;
+                    r_value <= 4'd9;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
             90: begin
                 //111111111011011
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd3;
+                    r_value <= 4'd8;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd4;
+                    r_value <= 4'd8;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -946,24 +946,24 @@ module AC_Huffman_Table (
             93: begin
                 //111111111011100
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd5;
+                    r_value <= 4'd8;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd6;
+                    r_value <= 4'd8;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             94: begin
                 //111111111011101
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd7;
+                    r_value <= 4'd8;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd8;
                     r_value <= 4'd8;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -978,24 +978,24 @@ module AC_Huffman_Table (
             96: begin
                 //111111111011110
                 if(bit == 0) begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd9;
+                    r_value <= 4'd8;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd8;
-                    r_value <= 4'd10;
+                    r_value <= 4'd8;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             97: begin
                 //111111111011111
                 if(bit == 0) begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd2;
+                    r_value <= 4'd9;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd3;
+                    r_value <= 4'd9;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
@@ -1042,24 +1042,24 @@ module AC_Huffman_Table (
             103: begin
                 //111111111100000
                 if(bit == 0) begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd4;
+                    r_value <= 4'd9;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd5;
+                    r_value <= 4'd9;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
             104: begin
                 //111111111100001
                 if(bit == 0) begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd6;
+                    r_value <= 4'd9;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd7;
+                    r_value <= 4'd9;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
@@ -1074,24 +1074,24 @@ module AC_Huffman_Table (
             106: begin
                 //111111111100010
                 if(bit == 0) begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd8;
+                    r_value <= 4'd9;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd9;
                     r_value <= 4'd9;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
             107: begin
                 //111111111100011
                 if(bit == 0) begin
-                    s_value <= 4'd9;
-                    r_value <= 4'd10;
+                    r_value <= 4'd9;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd2;
+                    r_value <= 4'd10;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
@@ -1114,24 +1114,24 @@ module AC_Huffman_Table (
             110: begin
                 //111111111100100
                 if(bit == 0) begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd3;
+                    r_value <= 4'd10;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd4;
+                    r_value <= 4'd10;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
             111: begin
                 //111111111100101
                 if(bit == 0) begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd5;
+                    r_value <= 4'd10;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd6;
+                    r_value <= 4'd10;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
@@ -1146,24 +1146,24 @@ module AC_Huffman_Table (
             113: begin
                 //111111111100110
                 if(bit == 0) begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd7;
+                    r_value <= 4'd10;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd8;
+                    r_value <= 4'd10;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
             114: begin
                 //111111111100111
                 if(bit == 0) begin
-                    s_value <= 4'd10;
-                    r_value <= 4'd9;
+                    r_value <= 4'd10;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd10;
                     r_value <= 4'd10;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
@@ -1194,24 +1194,24 @@ module AC_Huffman_Table (
             118: begin
                 //111111111101000
                 if(bit == 0) begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd2;
+                    r_value <= 4'd11;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd3;
+                    r_value <= 4'd11;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
             119: begin
                 //111111111101001
                 if(bit == 0) begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd4;
+                    r_value <= 4'd11;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd5;
+                    r_value <= 4'd11;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
@@ -1226,24 +1226,24 @@ module AC_Huffman_Table (
             121: begin
                 //111111111101010
                 if(bit == 0) begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd6;
+                    r_value <= 4'd11;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd7;
+                    r_value <= 4'd11;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
             122: begin
                 //111111111101011
                 if(bit == 0) begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd8;
+                    r_value <= 4'd11;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd9;
+                    r_value <= 4'd11;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
@@ -1266,24 +1266,24 @@ module AC_Huffman_Table (
             125: begin
                 //111111111101100
                 if(bit == 0) begin
-                    s_value <= 4'd11;
-                    r_value <= 4'd10;
+                    r_value <= 4'd11;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd2;
+                    r_value <= 4'd12;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end
             end
             126: begin
                 //111111111101101
                 if(bit == 0) begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd3;
+                    r_value <= 4'd12;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd4;
+                    r_value <= 4'd12;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end
             end
@@ -1298,24 +1298,24 @@ module AC_Huffman_Table (
             128: begin
                 //111111111101110
                 if(bit == 0) begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd5;
+                    r_value <= 4'd12;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd6;
+                    r_value <= 4'd12;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end
             end
             129: begin
                 //111111111101111
                 if(bit == 0) begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd7;
+                    r_value <= 4'd12;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd8;
+                    r_value <= 4'd12;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end
             end
@@ -1354,36 +1354,36 @@ module AC_Huffman_Table (
             134: begin
                 //111111111110000
                 if(bit == 0) begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd9;
+                    r_value <= 4'd12;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd12;
-                    r_value <= 4'd10;
+                    r_value <= 4'd12;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end
             end
             135: begin
                 //1111111100
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd1;
+                    r_value <= 4'd13;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd0;
+                    r_value <= 4'd15;
+                    s_value <= 4'd0;
                     next_state <= 0;
                 end
             end
             136: begin
                 //111111111110001
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd2;
+                    r_value <= 4'd13;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd3;
+                    r_value <= 4'd13;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
@@ -1398,24 +1398,24 @@ module AC_Huffman_Table (
             138: begin
                 //111111111110010
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd4;
+                    r_value <= 4'd13;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd5;
+                    r_value <= 4'd13;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
             139: begin
                 //111111111110011
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd6;
+                    r_value <= 4'd13;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd7;
+                    r_value <= 4'd13;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
@@ -1438,24 +1438,24 @@ module AC_Huffman_Table (
             142: begin
                 //111111111110100
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd8;
+                    r_value <= 4'd13;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd9;
+                    r_value <= 4'd13;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
             143: begin
                 //111111111110101
                 if(bit == 0) begin
-                    s_value <= 4'd13;
-                    r_value <= 4'd10;
+                    r_value <= 4'd13;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd1;
+                    r_value <= 4'd14;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
@@ -1470,24 +1470,24 @@ module AC_Huffman_Table (
             145: begin
                 //111111111110110
                 if(bit == 0) begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd2;
+                    r_value <= 4'd14;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd3;
+                    r_value <= 4'd14;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
             146: begin
                 //111111111110111
                 if(bit == 0) begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd4;
+                    r_value <= 4'd14;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd5;
+                    r_value <= 4'd14;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
@@ -1518,24 +1518,24 @@ module AC_Huffman_Table (
             150: begin
                 //111111111111000
                 if(bit == 0) begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd6;
+                    r_value <= 4'd14;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd7;
+                    r_value <= 4'd14;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
             151: begin
                 //111111111111001
                 if(bit == 0) begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd8;
+                    r_value <= 4'd14;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd9;
+                    r_value <= 4'd14;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
@@ -1550,24 +1550,24 @@ module AC_Huffman_Table (
             153: begin
                 //111111111111010
                 if(bit == 0) begin
-                    s_value <= 4'd14;
-                    r_value <= 4'd10;
+                    r_value <= 4'd14;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd1;
+                    r_value <= 4'd15;
+                    s_value <= 4'd1;
                     next_state <= 0;
                 end
             end
             154: begin
                 //111111111111011
                 if(bit == 0) begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd2;
+                    r_value <= 4'd15;
+                    s_value <= 4'd2;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd3;
+                    r_value <= 4'd15;
+                    s_value <= 4'd3;
                     next_state <= 0;
                 end
             end
@@ -1590,24 +1590,24 @@ module AC_Huffman_Table (
             157: begin
                 //111111111111100
                 if(bit == 0) begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd4;
+                    r_value <= 4'd15;
+                    s_value <= 4'd4;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd5;
+                    r_value <= 4'd15;
+                    s_value <= 4'd5;
                     next_state <= 0;
                 end
             end
             158: begin
                 //111111111111101
                 if(bit == 0) begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd6;
+                    r_value <= 4'd15;
+                    s_value <= 4'd6;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd7;
+                    r_value <= 4'd15;
+                    s_value <= 4'd7;
                     next_state <= 0;
                 end
             end
@@ -1622,20 +1622,20 @@ module AC_Huffman_Table (
             160: begin
                 //111111111111110
                 if(bit == 0) begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd8;
+                    r_value <= 4'd15;
+                    s_value <= 4'd8;
                     next_state <= 0;
                 end else begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd9;
+                    r_value <= 4'd15;
+                    s_value <= 4'd9;
                     next_state <= 0;
                 end
             end
             161: begin
                 //111111111111111
                 if(bit == 0) begin
-                    s_value <= 4'd15;
-                    r_value <= 4'd10;
+                    r_value <= 4'd15;
+                    s_value <= 4'd10;
                     next_state <= 0;
                 end else begin
                     next_state <= 0;

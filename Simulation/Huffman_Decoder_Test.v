@@ -9,8 +9,8 @@ module Huffman_Decoder_Test;
     reg ac_dc_flag = 1'b0, next_bit = 1'b0, is_new = 1'b0;
     
     //Outputs of the module
-    wire [3:0] s_value;
     wire [3:0] r_value;
+    wire [3:0] s_value;
     wire done;
     
     //Change clock with given period
@@ -22,8 +22,8 @@ module Huffman_Decoder_Test;
         .ac_dc_flag(ac_dc_flag),
         .next_bit(next_bit),
         .is_new(is_new),
-        .s_value(s_value),
         .r_value(r_value),
+        .s_value(s_value),
         .done(done)
     );
 
@@ -34,7 +34,7 @@ module Huffman_Decoder_Test;
         @(posedge clk)
         rst <= 1'b0;
         
-        //Send 011 to DC Decoder (S->0, R->2)
+        //Send 011 to DC Decoder (R->0, S->2)
         ac_dc_flag <= 1'b1;  
         next_bit <= 1'b0;
         is_new <= 1'b1;
@@ -48,7 +48,7 @@ module Huffman_Decoder_Test;
         is_new <= 1'b1;
         @(posedge clk)
         
-        //Send 11011 to AC Decoder (S->1, R->2)
+        //Send 11011 to AC Decoder (R->1, S->2)
         ac_dc_flag <= 1'b0;  
         next_bit <= 1'b1;
         is_new <= 1'b1;

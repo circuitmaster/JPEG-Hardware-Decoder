@@ -2,63 +2,26 @@
 
 module Number_Generator_Test;
     //Period of the clock
-    localparam PERIOD = 1000;
+    localparam PERIOD = 100;
 
     //Registers given as input to the module
     reg clk = 1'b0, rst = 1'b0;
     reg next_bit = 1'b0, is_new = 1'b0;
     
     //Outputs of the module
-    wire [3:0] s_value;
+    wire [3:0] r_value;
     wire [7:0] coefficient;
     wire is_new_coefficient;
     
-    //Internal wires
-    wire[3:0] s_value_huffman;
-    wire[3:0] r_value_huffman;
-    wire done_huffman;
-    wire [7:0] decoded_number;
-    wire ac_dc_huffman;
-    wire bit_huffman;
-    wire is_new_bit_huffman;
-    wire[10:0] coded_number;
-    wire[3:0] r_value;
-    
     //Change clock with given period
     always #(PERIOD/2) clk = ~clk;
-
-    Huffman_Decoder huffman_decoder(
-        .clk(clk),
-        .rst(rst),
-        .ac_dc_flag(ac_dc_huffman),
-        .next_bit(bit_huffman),
-        .is_new(is_new_bit_huffman),
-        .s_value(s_value_huffman),
-        .r_value(r_value_huffman),
-        .done(done_huffman)
-    );
-    
-    Number_Decoder number_decoder(
-        .r_value(r_value),
-        .coded_number(coded_number),
-        .decoded_number(decoded_number)
-    );
-    
+   
     Number_Generator number_generator(
         .clk(clk), 
         .rst(rst),
         .bit_input(next_bit),
         .is_new_bit(is_new),
-        .s_value_huffman(s_value_huffman),
-        .r_value_huffman(r_value_huffman),
-        .done_huffman(done_huffman),
-        .decoded_number(decoded_number),
-        .ac_dc_huffman(ac_dc_huffman),
-        .bit_huffman(bit_huffman),
-        .is_new_bit_huffman(is_new_bit_huffman),
-        .coded_number(coded_number),
         .r_value(r_value),
-        .s_value(s_value),
         .coefficient(coefficient),
         .is_new_coefficient(is_new_coefficient)
     );
@@ -70,26 +33,65 @@ module Number_Generator_Test;
         @(posedge clk)
         rst <= 1'b0;
         
-        //Send 011 to DC Decoder (S->0, R->2) 
-        next_bit <= 1'b0;
-        is_new <= 1'b1;
-        @(posedge clk)
+        //NOTE: First sequence will be decoded based on dc table
         
-        next_bit <= 1'b1;
-        is_new <= 1'b1;
-        @(posedge clk)
+        //DETAILED EXAMPLES
+        //Send 011 to DC Decoder (R->0, S->2)
+        give_bit_sequence(3'b011, 3);
         
-        next_bit <= 1'b1;
-        is_new <= 1'b1;
-        @(posedge clk)
+        //Send encoded number 10 (number=2)
+        give_bit_sequence(2'b10, 2);
         
-        //Send 2 bit number
-        next_bit <= 1'b1;
-        is_new <= 1'b1;
-        @(posedge clk)
+        //Send 1111001 to AC Decoder (R->1, S->3)
+        give_bit_sequence(7'b1111001, 7);
         
-        next_bit <= 1'b0;
-        is_new <= 1'b1;
+        //Send encoded number 010 (number=-5)
+        give_bit_sequence(3'b010, 3);
+        
+        
+        //OTHER EXAMPLES
+        //Send 111110111_01 (R->3, number=-2)
+        give_bit_sequence(11'b111110111_01, 11);
+        
+        //Send 1111111110101001_011111 (R->6, number=-32)
+        give_bit_sequence(22'b1111111110101001_011111, 22);
+                
+        //Send 11111111001 (ZRL, R->15, number->0)
+        give_bit_sequence(11'b11111111001, 11);
+        
+        //Send 1010 (EOB, R->0, number->0)
+        give_bit_sequence(4'b1010, 4);
+
     end
     
+    //Gives bit sequence into number generator
+    task give_bit_sequence(input reg[99:00] bit_sequence, input integer length);
+        integer i;
+    begin
+        for(i=length-1; i>=0; i=i-1) begin
+            next_bit <= bit_sequence[i];
+            is_new <= 1'b1;
+            @(posedge clk);
+            next_bit <= 1'b0;
+            is_new <= 1'b0;
+        end
+    end
+    endtask    
+    
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
