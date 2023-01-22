@@ -22,15 +22,15 @@ module Number_Generator(
     wire[3:0] s_value_huffman;      //S value coming from huffman decoder
     wire done_huffman;              //Done signal coming from huffman decoder
     wire[7:0] decoded_number;       //Decoded number that goes into table generator
-    reg ac_dc_huffman;             //Selects which table will be used for decoding in huffman decoder
-    reg bit_huffman;               //Next bit goes into huffman decoder
-    reg is_new_bit_huffman;        //Indicates if given huffman bit output is valid
-    reg[10:0] coded_number;        //Coded number goes into number decoder
-    reg[3:0] s_value;              //S value goes into number decoder
+    reg ac_dc_huffman;              //Selects which table will be used for decoding in huffman decoder
+    reg bit_huffman;                //Next bit goes into huffman decoder
+    reg is_new_bit_huffman;         //Indicates if given huffman bit output is valid
+    reg[10:0] coded_number;         //Coded number goes into number decoder
+    reg[3:0] s_value;               //S value goes into number decoder
     
     //Internal Signals
     reg EOB;                            //End of block signal
-    reg ZRL;                     //Indicates there is 16 zeros 
+    reg ZRL;                            //Indicates there is 16 zeros 
     reg[5:0] next_coefficient_index;    //Incremented version of coefficient index. Incremented by r_value_reg+1
     
     //Registers
@@ -54,7 +54,7 @@ module Number_Generator(
         is_new_coefficient <= 1'b0;
    
         EOB <= r_value_huffman == 4'b0 && s_value_huffman == 4'b0;          //End of Block signal indicates that 8x8 block coefficients are ended
-        ZRL <= r_value_huffman == 4'd15 && s_value_huffman == 4'b0;  //Indicates there are 16 zeros in the table
+        ZRL <= r_value_huffman == 4'd15 && s_value_huffman == 4'b0;         //Indicates there are 16 zeros in the table
         next_coefficient_index <= coefficient_index + r_value_reg + 1;      //coefficient index will be updated based on the run length
  
         case(state)
