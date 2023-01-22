@@ -12,7 +12,7 @@ module Table_Generator(
     input is_new_coefficient,               //The value came from the number generator
 
     //Each row is given as outputs
-    output reg[2047:0] value,
+    output reg[64*8-1:0] value,
     output reg valid
 
 );
