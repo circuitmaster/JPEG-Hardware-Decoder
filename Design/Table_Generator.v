@@ -12,7 +12,8 @@ module Table_Generator(
     input is_new_coefficient,               //The value came from the number generator
 
     //Each row is given as outputs
-    output reg[2047:0]value
+    output reg[2047:0] value,
+    output reg valid
 
 );
 
@@ -21,6 +22,7 @@ module Table_Generator(
     reg[7:0] zig_zag_matrix [0:63]; 
     
     integer i;
+    
     initial begin
         for(i=0; i<64; i=i+1) begin
             memory[i] <= params[i];
@@ -30,6 +32,7 @@ module Table_Generator(
     //Internal Signals
 
     integer counter = 0; //Loop counter
+    integer j;
 
     //Registers
           //The matrix that will be operated upon
@@ -37,15 +40,22 @@ module Table_Generator(
     //Flow
     always @(posedge clk) begin
         if (is_new_coefficient) begin 
-            zig_zag_matrix[memory[counter]] = coefficient;
-            counter <= counter + 1 + r_value;
-         end
+            zig_zag_matrix[memory[counter+r_value]] = coefficient;
+            
+            if(counter == 63) begin
+                valid <= 1'b1;
+                counter <= 0;
+            end
+            else 
+            begin
+                counter <= counter + 1 + r_value;
+            end
+         end        
     end
     
-    genvar j;
-    generate
+    always @(*) begin
         for(j=0; j<64; j = j + 1) begin
             value[j*8 +: 8] <= zig_zag_matrix[j];
         end
-    endgenerate
+    end
 endmodule
