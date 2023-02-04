@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module register(
+module reg_bit(
 input clk,
-input [31:0] data_in,
-output reg [31:0] data_out
+input data_in,
+output reg data_out
     );
     
  always@(posedge clk)begin

@@ -3,9 +3,9 @@
 // Company: 
 // Engineer: 
 // 
-// Create Date: 01/26/2023 11:45:23 PM
+// Create Date: 01/27/2023 08:46:49 PM
 // Design Name: 
-// Module Name: register
+// Module Name: idct_add2
 // Project Name: 
 // Target Devices: 
 // Tool Versions: 
@@ -20,13 +20,18 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module register(
-input clk,
-input [31:0] data_in,
-output reg [31:0] data_out
+module idct_add2(
+input [31:0] t0, t1, t2, t3, t4, t5, t6, t7, t8, t9,
+output [31:0] o0, o1, o2, o3, o4, o5, o6, o7, o8, o9
     );
     
- always@(posedge clk)begin
- data_out <= data_in;
- end
+    assign o0 = t0 + t7;
+    assign o1 = t1 + t9;
+    assign o2 = t2 + t8;
+    assign o3 = t3 + t4;
+    assign o4 = t3 - t4;
+    assign o5 = t2 - t8;
+    assign o6 = t1 - t9;
+    assign o7 = t0 - t7;
+    
 endmodule
