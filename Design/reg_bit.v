@@ -22,11 +22,16 @@
 
 module reg_bit(
 input clk,
+input rst,
 input data_in,
 output reg data_out
     );
     
  always@(posedge clk)begin
- data_out <= data_in;
+     if (rst) begin
+        data_out <= 1'b0;
+     end else begin
+        data_out <= data_in;
+     end
  end
 endmodule

@@ -34,8 +34,8 @@ module idct_add1(
         assign t7 = s7 + s6;
         assign t6 = s7 - s6;
         
-        assign t8 = s8 - s9;
-        assign t9 = s10 + s11;
+        assign t9 = s8 - s9;
+        assign t8 = s10 + s11;
         
         
 endmodule
