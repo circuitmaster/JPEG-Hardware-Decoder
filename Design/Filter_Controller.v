@@ -78,8 +78,10 @@ module Filter_Controller
     reg[PIXEL_WIDTH-1:0] old_value_RAM_data_signal;
     reg[PIXEL_WIDTH-1:0] image_RAM_data_signal;
     
+    //Helper assignments
     assign is_leftmost_block = image_width_index == {IMAGE_WIDTH_INDEX_SIZE{1'b0}};
     
+    //Ram signal assignments
     assign absolute_image_width_index = image_width_index + swiper_width_index - PADDING_SIZE;
     assign absolute_image_height_index = image_height_index + swiper_height_index - PADDING_SIZE;
     assign is_coordinate_outside_of_image = 
@@ -97,6 +99,8 @@ module Filter_Controller
         end
     end
     
+    
+    //Control signals
     always @(*) begin
         CDF <= histogram_RAM_data;
         histogram_RAM_address <= {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}};
