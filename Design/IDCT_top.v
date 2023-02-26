@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
-// 
+//  
 // Create Date: 02/12/2023 12:39:19 PM
 // Design Name: 
 // Module Name: IDCT_top
@@ -28,7 +28,7 @@ module IDCT_top(
    input [4:0] shift_amount,
    output [2047:0] data_out,
    output m_valid
-    );
+);
     
     idct8 idct1(clk, rst, s_valid, data_in[255:0], shift_amount, data_out[255:0], m_valid);
     idct8 idct2(clk, rst, s_valid, data_in[511:256], shift_amount, data_out[511:256], m_valid);

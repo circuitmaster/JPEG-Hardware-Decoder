@@ -53,9 +53,9 @@ module Number_Generator(
         coefficient <= 8'b0;
         is_new_coefficient <= 1'b0;
    
-        EOB <= r_value_huffman == 4'b0 && s_value_huffman == 4'b0;          //End of Block signal indicates that 8x8 block coefficients are ended
-        ZRL <= r_value_huffman == 4'd15 && s_value_huffman == 4'b0;         //Indicates there are 16 zeros in the table
-        next_coefficient_index <= coefficient_index + r_value_reg + 1;      //coefficient index will be updated based on the run length
+        EOB <= r_value_huffman == 4'b0 && s_value_huffman == 4'b0;     //Indicates end of Block signal for AC and 0 for DC
+        ZRL <= r_value_huffman == 4'd15 && s_value_huffman == 4'b0;    //Indicates there are 16 zeros in the table
+        next_coefficient_index <= coefficient_index + r_value_reg + 1; //coefficient index will be updated based on the run length
  
         case(state)
             HUFFMAN_DECODE_STATE: begin
@@ -66,7 +66,7 @@ module Number_Generator(
                 if(done_huffman) begin
                     if(EOB) begin
                         //Output EOB value
-                        ac_dc_huffman <= 1'b1;
+                        ac_dc_huffman <= next_coefficient_index == 6'd0 ? 1'b1 : 1'b0;
                         r_value <= 4'b0;
                         coefficient <= 8'b0;
                         is_new_coefficient <= 1'b1;
@@ -85,7 +85,7 @@ module Number_Generator(
                 if(coded_number_index == 4'b1111) begin
                     //Number decoding is finished but there can be new bits, so lead them to huffman decoder
                     is_new_bit_huffman <= is_new_bit;
-                    ac_dc_huffman <= next_coefficient_index == 6'd63 ? 1'b1 : 1'b0;
+                    ac_dc_huffman <= next_coefficient_index == 6'd0 ? 1'b1 : 1'b0;
                     
                     //Index is smaller than zero so coefficient is decoded, Output it
                     r_value <= r_value_reg;
@@ -110,8 +110,8 @@ module Number_Generator(
                 HUFFMAN_DECODE_STATE: begin
                     if(done_huffman) begin
                         if(EOB) begin
-                            //Block is finished reset coefficient index to 0
-                            coefficient_index <= 6'b0;
+                            //Reset coefficient index if it is not at 0 index
+                            coefficient_index <= coefficient_index == 6'b0 ? next_coefficient_index : 6'b0;
                         end else if(ZRL) begin
                             //Coefficient index is icremented by 16 because of 16 zeros
                             coefficient_index <= coefficient_index + 6'd16;
@@ -142,11 +142,7 @@ module Number_Generator(
                             coded_number_index <= coded_number_index - 1;
                         end
                     end else begin
-                        if(next_coefficient_index == 6'd63) begin
-                            coefficient_index <= 6'b0;
-                        end else begin
-                            coefficient_index <= next_coefficient_index;
-                        end
+                        coefficient_index <= next_coefficient_index;
                     
                         state <= HUFFMAN_DECODE_STATE;
                     end

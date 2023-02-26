@@ -12,7 +12,7 @@ module Table_Generator(
     input is_new_coefficient,       //Indicates if coefficient is valid
 
     //Each row is given as outputs
-    output reg[64*8-1:0] DCT_table,
+    output reg[64*8-1:0] table_value,
     output reg valid
 );
     
@@ -40,56 +40,81 @@ module Table_Generator(
         8'd72,  8'd92,  8'd95,  8'd98,  8'd112, 8'd100, 8'd103, 8'd99
     };
     
-    //Zig Zag index memory
-    reg[7:0] memory [0:63];
+    //Zig Zag params memory
+    reg[7:0] zigzag_params_memory [0:63];
     
-    //Quantization coefficients memory
-    reg[7:0] memory_quant [0:63];
+    //Quantization params memory
+    reg[7:0] quantization_params_memory [0:63];
     
     //Table memory 
-    reg[7:0] zig_zag_matrix [0:63];
+    reg[7:0] table_memory [0:63];
     
     //Internal registers
-    reg[5:0] counter;
+    reg[6:0] counter;
     reg valid_reg;
     
     //Internal wires
-    reg[7:0] zig_zag_index;
+    reg[6:0] next_counter;
+    reg[7:0] quantization_param;
+    reg signed[15:0] multiplication_result;
     
     integer i;
     initial begin
         for(i=0; i<64; i=i+1) begin
-            memory[i] <= zigzag_params[i*8 +: 8];
-            memory_quant[i] <= quantization_params[i*8 +: 8];
-            zig_zag_matrix[i] <= 8'd0;
+            zigzag_params_memory[i] <= zigzag_params[i*8 +: 8];
+            quantization_params_memory[i] <= quantization_params[i*8 +: 8];
+            table_memory[i] <= 8'd0;
         end
     end
     
     always @(*) begin
         valid <= valid_reg;
-        zig_zag_index <= memory[counter+r_value];
-    
+        quantization_param <= quantization_params_memory[zigzag_params_memory[counter+r_value]];
+        multiplication_result <= {{8{coefficient[7]}}, coefficient} * {{8{quantization_param[7]}}, quantization_param};
+        
         for(i=0; i<64; i = i + 1) begin
-            DCT_table[i*8 +: 8] <= zig_zag_matrix[i]*memory_quant[i];
+            table_value[i*8 +: 8] <= table_memory[i];
+        end
+        
+        if(counter + r_value + 1 == 7'd64 || (counter != 7'b0 && r_value == 4'b0 && coefficient == 8'b0)) begin
+            next_counter <= 7'b0;
+        end else begin
+            next_counter <= counter + r_value + 1;
         end
     end 
 
     //Control Flow
     always @(posedge clk) begin
         if(rst) begin
-            counter <= 6'b0;
+            counter <= 7'b0;
             valid_reg <= 1'b0;
         end else begin
+            valid_reg <= 1'b0;
+        
             if (is_new_coefficient) begin 
-                zig_zag_matrix[zig_zag_index] = coefficient;
-                
-                if(counter == 6'd63) begin
-                    valid_reg <= 1'b1;
-                    counter <= 6'b0;
+                if(counter == 7'b0) begin
+                    reset_table_memory;
+                end
+            
+                if(multiplication_result > $signed(16'd127)) begin
+                    table_memory[zigzag_params_memory[counter+r_value]] <= 8'd127;
+                end else if(multiplication_result < $signed(-16'd128)) begin
+                    table_memory[zigzag_params_memory[counter+r_value]] <= -8'd128;
                 end else begin
-                    counter <= counter + r_value + 1;
+                    table_memory[zigzag_params_memory[counter+r_value]] <= multiplication_result;
+                end
+                counter <= next_counter;
+                
+                if(next_counter == 7'b0) begin
+                    valid_reg <= 1'b1;
                 end
              end        
         end
     end
+    
+    task reset_table_memory;
+        for(i=0; i<64; i = i + 1) begin
+            table_memory[i] <= 8'd0;
+        end
+    endtask
 endmodule

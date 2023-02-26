@@ -30,11 +30,11 @@ module Huffman_Decoder (
         if(ac_dc_flag_reg == 1'b0) begin
             r_value <= ac_r_value;
             s_value <= ac_s_value;
-            done <= ac_next_state == 8'b0 && ready == 1'b0 ? 1'b1 : 1'b0;
+            done <= ac_next_state == 8'b0 && ready == 1'b0;
         end else begin
             r_value <= dc_r_value;
             s_value <= dc_s_value;
-            done <= dc_next_state == 4'b0 && ready == 1'b0 ? 1'b1 : 1'b0;
+            done <= dc_next_state == 4'b0 && ready == 1'b0;
         end
     end
     

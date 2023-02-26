@@ -21,17 +21,19 @@
 
 
 module idct_complete(
-input clk,
-input rst,
-input s_valid,
-input [511:0] data_in,
-output [511:0] data_out,
-output  m_valid
-    );
+    input clk,
+    input rst,
+    input s_valid,
+    input [511:0] data_in,
+    output [511:0] data_out,
+    output  m_valid
+);
     wire [2047:0] temp, temp2;
     wire m_valid_middle;
+    
     IDCT_top idct_x(clk, rst, {24'b0, data_in[63:56], 24'b0, data_in[55:48], 24'b0, data_in[47:40], 24'b0, data_in[39:32], 24'b0, data_in[31:24], 24'b0, data_in[23:16], 24'b0, data_in[15:8], 24'b0, data_in[7:0]}, s_valid, 4'd11, temp, m_valid_middle);
     IDCT_top idct_y(clk, rst, temp, m_valid_middle, 4'd15, temp2, m_valid);
+    
     genvar i;
     for(i = 0; i<63; i = i + 1)
     begin
