@@ -28,13 +28,23 @@ input [511:0] data_in,
 output [511:0] data_out,
 output  m_valid
     );
-    wire [2047:0] temp, temp2, temp3;
+    wire [2047:0] temp, temp2, temp3, data_in_pad;
     wire m_valid_middle;
     reg [2047:0] temp_reg;
     reg m_valid_middle_reg;
-    IDCT_top idct_x(clk, rst, {24'b0, data_in[63:56], 24'b0, data_in[55:48], 24'b0, data_in[47:40], 24'b0, data_in[39:32], 24'b0, data_in[31:24], 24'b0, data_in[23:16], 24'b0, data_in[15:8], 24'b0, data_in[7:0]}, s_valid, 4'd11, temp, m_valid_middle);
-    IDCT_top idct_y(clk, rst, temp_reg, m_valid_middle_reg, 4'd15, temp3, m_valid);
+    IDCT_top idct_x(clk, rst, data_in_pad, s_valid, 5'd11, temp, m_valid_middle);
+    IDCT_top idct_y(clk, rst, temp_reg, m_valid_middle_reg, 5'd15, temp3, m_valid);
     genvar i,j;
+    // Converting input from 512 bits to 2048 bits
+    for(i = 0; i<8; i = i + 1)
+    begin
+        for(j = 0; j<8; j = j + 1)
+        begin
+            assign data_in_pad[31+(i*32+j*8*32):(i*32+j*8*32)] = {24'b0, data_in[7+(i*8+j*8*8):(i*8+j*8*8)]};
+        end
+    end
+    
+    
     // Taking transpose of the row result
     for(i = 0; i<8; i = i + 1)
     begin
