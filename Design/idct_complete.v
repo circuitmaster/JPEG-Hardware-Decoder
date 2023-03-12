@@ -40,7 +40,7 @@ output  m_valid
     begin
         for(j = 0; j<8; j = j + 1)
         begin
-            assign data_in_pad[31+(i*32+j*8*32):(i*32+j*8*32)] = {24'b0, data_in[7+(i*8+j*8*8):(i*8+j*8*8)]};
+            assign data_in_pad[31+(i*32+j*8*32):(i*32+j*8*32)] = {{24{data_in[7+(i*8+j*8*8)]}}, data_in[7+(i*8+j*8*8):(i*8+j*8*8)]};
         end
     end
     
