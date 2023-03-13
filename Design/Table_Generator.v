@@ -58,6 +58,12 @@ module Table_Generator(
     reg[7:0] quantization_param;
     reg signed[15:0] multiplication_result;
     
+    // Previous DC value
+    reg [7:0] prev_dc_val;
+    wire [7:0] real_coefficient;
+    
+    assign real_coefficient = coefficient + prev_dc_val;
+    
     integer i;
     initial begin
         for(i=0; i<64; i=i+1) begin
@@ -70,7 +76,12 @@ module Table_Generator(
     always @(*) begin
         valid <= valid_reg;
         quantization_param <= quantization_params_memory[zigzag_params_memory[counter+r_value]];
-        multiplication_result <= {{8{coefficient[7]}}, coefficient} * {{8{quantization_param[7]}}, quantization_param};
+        
+        if(counter == 0) begin
+            multiplication_result <= {{8{coefficient[7]}}, real_coefficient} * {{8{quantization_param[7]}}, quantization_param};
+        end else begin
+            multiplication_result <= {{8{coefficient[7]}}, coefficient} * {{8{quantization_param[7]}}, quantization_param};
+        end
         
         for(i=0; i<64; i = i + 1) begin
             table_value[i*8 +: 8] <= table_memory[i];
@@ -88,12 +99,14 @@ module Table_Generator(
         if(rst) begin
             counter <= 7'b0;
             valid_reg <= 1'b0;
+            prev_dc_val <= 8'b0;
         end else begin
             valid_reg <= 1'b0;
-        
+            
             if (is_new_coefficient) begin 
                 if(counter == 7'b0) begin
                     reset_table_memory;
+                    prev_dc_val <= prev_dc_val + coefficient;
                 end
             
                 if(multiplication_result > $signed(16'd127)) begin
