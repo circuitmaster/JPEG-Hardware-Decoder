@@ -1,6 +1,6 @@
 module Filter_Median (
-    input [71:0] in_matrix,
-    output reg [7:0] middle_element
+    input [71:0] image_in, //Input Matrix
+    output reg[7:0] pixel_out //Output Matrix
 );
 
 parameter SIZE = 3;
@@ -21,7 +21,7 @@ begin
     begin
         for (j = 0; j < SIZE; j = j + 1)
         begin
-            buffer[i][j] = in_matrix[i*SIZE*8+j*8+:8];
+            buffer[i][j] = image_in[i*SIZE*8+j*8+:8];
         end
     end
 end
@@ -49,7 +49,7 @@ begin
         end
     end
     
-    middle_element = temp_buffer[m];
+    pixel_out = temp_buffer[m];
 end
 
 endmodule

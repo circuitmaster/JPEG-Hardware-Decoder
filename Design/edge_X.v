@@ -20,9 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module edge_X(
+module Edge_X(
     input [199:0] image_in, //Input Matrix
-    
     output [7:0] pixel_out //Output Matrix
 );
     // Gaussian blur kernel
