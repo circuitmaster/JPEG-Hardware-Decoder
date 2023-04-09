@@ -1,16 +1,16 @@
 module Filter_Median (
-    input [199:0] in_matrix,
+    input [71:0] in_matrix,
     output reg [7:0] middle_element
 );
 
-parameter SIZE = 5;
+parameter SIZE = 3;
 
 reg [7:0] buffer [SIZE-1:0][SIZE-1:0];
 reg [7:0] temp_buffer [SIZE*SIZE-1:0];
 
 integer i, j, k;
 integer n = SIZE*SIZE;
-integer m = 12;
+integer m = 4;
 integer p, q;
 reg [7:0] t;
 
