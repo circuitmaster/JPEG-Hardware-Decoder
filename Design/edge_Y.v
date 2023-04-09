@@ -27,6 +27,7 @@ module edge_Y(
 );
     // Gaussian blur kernel
     // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
+    wire [15:0] tmp;
     
      wire [15:0] first_col1 = -image_in[7:0] - 2*image_in[47:40];
     wire [15:0] first_col2 = 2 * image_in[127:120] + image_in[167:160];
@@ -44,7 +45,10 @@ module edge_Y(
     wire [15:0] third_col = third_col1 + third_col2;
     wire [15:0] fourth_col = fourth_col1 + fourth_col2;
     wire [15:0] fifth_col = fifth_col1 + fifth_col2;
+    
+    assign tmp = first_col + second_col + third_col + fourth_col + fifth_col;
 
-    assign pixel_out = first_col + second_col + third_col + fourth_col + fifth_col;
+    assign pixel_out = (tmp > 0) ? tmp : - tmp;
+    
     
 endmodule

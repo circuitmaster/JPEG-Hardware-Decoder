@@ -27,6 +27,7 @@ module edge_X(
 );
     // Gaussian blur kernel
     // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
+    wire [15:0] tmp;
     
     wire [15:0] first_row1 = -image_in[7:0] - 2*image_in[15:8];
     wire [15:0] first_row2 = 2 * image_in[31:24] + image_in[39:32];
@@ -45,6 +46,8 @@ module edge_X(
     wire [15:0] fourth_row = fourth_row1 + fourth_row2;
     wire [15:0] fifth_row = fifth_row1 + fifth_row2;
     
-    assign pixel_out = first_row + second_row + third_row + fourth_row + fifth_row;
+    assign tmp = first_row + second_row + third_row + fourth_row + fifth_row;
+
+    assign pixel_out = (tmp > 0) ? tmp : - tmp;
     
 endmodule

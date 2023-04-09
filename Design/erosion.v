@@ -21,30 +21,22 @@
 
 
 module erosion(
-    input [7:0] num1,
-    input [7:0] num2,
-    input [7:0] num3,
-    input [7:0] num4,
-    input [7:0] num5,
-    input [7:0] num6,
-    input [7:0] num7,
-    input [7:0] num8,
-    input [7:0] num9,
+    input [71:0] in,
     output [7:0] erod
     
     );
     wire temp, temp2, temp3, temp4, temp5;
     
-    assign temp = (num1 > 127) & (num2 > 127);
-    assign temp2 = (num3 > 127) & (num4 > 127);
-    assign temp3 = (num5 > 127) & (num6 > 127);
-    assign temp4 = (num7 > 127) & (num8 > 127);
+    assign temp = (in[7:0] > 127) & (in[15:8] > 127);
+    assign temp2 = (in[23:16] > 127) & (in[31:24] > 127);
+    assign temp3 = (in[39:32] > 127) & (in[47:40] > 127);
+    assign temp4 = (in[55:48] > 127) & (in[63:56] > 127);
     
     assign temp5 = temp & temp2;
     assign temp6 = temp3 & temp4;
     
     assign temp7 = temp5 & temp6;
-    assign erod = 8'd255 & {8{(temp7 & (num9 > 127))}};
+    assign erod = 8'd255 & {8{(temp7 & (in[71:64] > 127))}};
     
     
 endmodule

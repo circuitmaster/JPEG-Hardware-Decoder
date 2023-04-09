@@ -21,13 +21,14 @@
 
 
 module hist_eq(
-    input [16:0] cdf,
-    input [8:0] cdf_min,
-    output [31:0] pxl_out
+    input [31:0] cdf,
+    input [31:0] cdf_min,
+    output [7:0] pxl_out
     );
-    wire[31:0] tmp;
+    wire[31:0] tmp, tmp2;
     assign tmp = (cdf - cdf_min)/(76800 - cdf_min) * 255;
     
-    Rounder r(tmp, pxl_out);
+    Rounder r(tmp, tmp2);
+    assign pxl_out = tmp2[7:0];
     
 endmodule

@@ -27,7 +27,7 @@ module edge_LOG(
 );
     // Gaussian blur kernel
     // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
-    wire [15:0] tmp1, tmp2, tmp3, tmp4, tmp5, tmp6;
+    wire [15:0] tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
     
     wire [15:0] el1 = -1*image_in[7:0]; 
     wire [15:0] el2 = -3*image_in[15:8]; 
@@ -67,6 +67,8 @@ module edge_LOG(
     assign tmp5 = el21 + el22 + el23 + el24 + el25;
     assign tmp6 = tmp1 + tmp2 + tmp3 + tmp4 + tmp5;
     
-    assign pixel_out = tmp6[11:4] + image_in[103:96];
+    assign tmp7 = (tmp6 > 0) ? tmp6 : - tmp6; 
+    
+    assign pixel_out = tmp7[11:4] + image_in[103:96];
     
 endmodule
