@@ -1,22 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/02/2023 02:27:54 PM
-// Design Name: 
 // Module Name: edge_LOG
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description: Performs Lapplacian of Gaussian Operation
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -24,10 +9,10 @@ module Edge_Log(
     input [199:0] image_in, //Input Matrix
     output [7:0] pixel_out //Output Matrix
 );
-    // Gaussian blur kernel
-    // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
+    // Temporary registers for paralelization
     wire [15:0] tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7;
     
+    //Directly writing the values for 5x5 kernel, where the values are hand-calculated
     wire [15:0] el1 = -1*image_in[7:0]; 
     wire [15:0] el2 = -3*image_in[15:8]; 
     wire [15:0] el3 = -4*image_in[23:16]; 

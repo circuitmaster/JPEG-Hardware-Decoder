@@ -1,22 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/02/2023 02:27:04 PM
-// Design Name: 
 // Module Name: edge_Y
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description: Performs Sobel_Y operation
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -24,11 +9,12 @@ module Edge_Y(
     input [199:0] image_in, //Input Matrix
     output [7:0] pixel_out //Output Matrix
 );
-    // Gaussian blur kernel
-    // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
+
+    //For paralellization
     wire [15:0] tmp;
     
-     wire [15:0] first_col1 = -image_in[7:0] - 2*image_in[47:40];
+    //Directly writing the values for 5x5 kernel, where the values are hand-calculated
+    wire [15:0] first_col1 = -image_in[7:0] - 2*image_in[47:40];
     wire [15:0] first_col2 = 2 * image_in[127:120] + image_in[167:160];
     wire [15:0] second_col1 = -4*image_in[15:8] - 8*image_in[55+48];
     wire [15:0] second_col2 = 8*image_in[135:128] + 4*image_in[175:168];

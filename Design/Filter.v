@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Module Name: Filter
 // Description: Reads image bit sequence and generates filtered image
