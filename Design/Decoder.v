@@ -18,6 +18,7 @@ module Decoder
     input clk, rst,
     input bit,
     input is_new,
+    input[15:0] command,
     inout[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
     output[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
     output histogram_RAM_WE,

@@ -16,6 +16,7 @@ module Decoder_Test;
     //Registers given as input to the module
     reg clk = 1'b0, rst = 1'b0;
     reg bit, is_new;
+    reg[15:0] command;
 
     //Registers given as input/output to the module
     wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data;
@@ -44,6 +45,7 @@ module Decoder_Test;
         .rst(rst),
         .bit(bit),
         .is_new(is_new),
+        .command(command),
         .histogram_RAM_data(histogram_RAM_data),
         .histogram_RAM_address(histogram_RAM_address),
         .histogram_RAM_WE(histogram_RAM_WE),

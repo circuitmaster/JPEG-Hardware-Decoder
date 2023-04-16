@@ -1,24 +1,24 @@
 //////////////////////////////////////////////////////////////////////////////////
-// Module Name: UART Receiver
-// Description: Takes UART signals and outputs bit by bit
+// Module Name: UART Transmitter
+// Description: Takes data as byte and outputs UART signals
 //////////////////////////////////////////////////////////////////////////////////
 
 `timescale 1ns / 1ps
 
-module UART_Receiver 
+module UART_Transmitter
 #(
     parameter CLK_FREQ = 100_000_000,
     parameter BAUD_RATE = 115_200
 )(
     input clk, rst,
-    input rx,           //Received UART signal
-    output reg bit,     //Output bit value
-    output reg is_new   //Indicates if output is valid
+    input[7:0] data,
+    input is_new,         //Indicates input data is new
+    output reg tx,        //Transmitted UART signal
+    output reg ready      //UART module is ready to take new data
 );
-    //Constants
     localparam TIMER_LIMIT = CLK_FREQ/BAUD_RATE;                        //Number of clock cycles that module has to wait
     localparam TIMER_REG_LENGTH = $rtoi($ceil($clog2(TIMER_LIMIT)));    //Register length that will be hold timer value
-    
+
     //States
     localparam IDLE = 0;
     localparam START = 1;
@@ -26,26 +26,20 @@ module UART_Receiver
     localparam STOP = 3;
     
     //Registers
-    reg bit_reg;                        //Holds outgoing bit
-    reg is_new_reg;                     //Indicates if outgoing bit is valid
     reg[1:0] state;                     //State of the UART
     reg[TIMER_REG_LENGTH-1:0] timer;    //Timer value that is used to meet baud rate
-    reg[2:0] bit_counter;               //Holds received bit count
-    
-    //Output signals
-    always @(*) begin
-        bit <= bit_reg;
-        is_new <= is_new_reg;
-    end
+    reg[2:0] bit_counter;               //Holds transmitted bit count
+    reg[7:0] data_reg;                  //Holds data
     
     //UART state transition
     always @(posedge clk) begin
         if(rst) begin
-            bit_reg <= 1'b0;
-            is_new_reg <= 1'b0;
+            tx <= 1'b0;
+            ready <= 1'b1;
             state <= 2'b0;
             timer <= {TIMER_REG_LENGTH{1'b0}};
             bit_counter <= 3'b0;
+            data_reg <= 8'b0;
         end else begin
             case(state)
                 IDLE: begin
@@ -53,51 +47,48 @@ module UART_Receiver
                     bit_counter <= 3'b0;
                     timer <= {TIMER_REG_LENGTH{1'b0}};
                     
-                    //Start transfer if input signal is 0
-                    if(rx == 1'b0)
+                    //Start transfer if input signal is 1
+                    if(is_new == 1'b1) begin
+                        data_reg <= data;
+                        ready <= 1'b0;
                         state <= START;
+                    end
                 end
                 START: begin
-                    //When timer is half of TIMER_LIMIT sample rx
-                    //This makes it possible to sample rx in the middle. So it is safer.
-                    if(timer == TIMER_LIMIT/2-1) begin
-                        if(rx == 1'b0) begin
-                            //Signal is still 0 so start data transfer
-                            timer <= {TIMER_REG_LENGTH{1'b0}};
-                            state <= TRANSMISSION;
-                        end else begin
-                            //Signal is 1 so it is unreliable. Go back to IDLE state
-                            state <= IDLE;
-                        end
+                    tx <= 1'b0;
+                    
+                    //Transmit start signal until TIMER_LIMIT reached
+                    if(timer == TIMER_LIMIT-1) begin
+                        timer <= {TIMER_REG_LENGTH{1'b0}};
+                        state <= TRANSMISSION;
                     end else begin
                         //Increment timer
                         timer <= timer + 1;
                     end
                 end
                 TRANSMISSION: begin
-                    //If timer reaches to TIMER_LIMIT sample rx and use it as data bit
+                    tx <= data_reg[0];
+                
+                    //Transmit data until TIMER_LIMIT reached
                     if(timer == TIMER_LIMIT-1) begin
                         timer <= {TIMER_REG_LENGTH{1'b0}};
-                        bit_reg <= rx;
-                        is_new_reg <= 1'b1;
                         
-                        if(bit_counter == 3'd7)
-                            //If bit count reaches 8 transfer is completed
+                        if(bit_counter == 7) begin
+                            tx <= 1'b1;
                             state <= STOP;
-                        else
-                            //Increment bit count until 8 bit is get
+                        end else begin
+                            data_reg[6:0] <= data_reg[7:1];
                             bit_counter <= bit_counter + 1;
+                        end
                     end else begin
                         //Increment timer
-                        is_new_reg <= 1'b0;
                         timer <= timer + 1;
                     end
                 end
                 STOP: begin
-                    is_new_reg <= 1'b0;
-                
                     if(timer == TIMER_LIMIT-1) begin
                         //When stop bit is came go back to IDLE state
+                        ready <= 1'b1;
                         state <= IDLE;
                     end else begin
                         //Increment timer
@@ -109,6 +100,18 @@ module UART_Receiver
     end
     
 endmodule
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
