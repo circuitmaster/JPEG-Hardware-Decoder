@@ -1,22 +1,7 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 04/02/2023 02:26:02 PM
-// Design Name: 
 // Module Name: edge_X
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
+// Description: Performs Sobel_X operation
 //////////////////////////////////////////////////////////////////////////////////
 
 
@@ -24,10 +9,10 @@ module Edge_X(
     input [199:0] image_in, //Input Matrix
     output [7:0] pixel_out //Output Matrix
 );
-    // Gaussian blur kernel
-    // reg [7:0] edge_x = {8'd1,8'd2,8'd1,8'd2,8'd4,8'd2,8'd1,8'd2,8'd1};
+    //For parallelization
     wire [15:0] tmp;
     
+    //Directly writing the values for 5x5 kernel, where the values are hand-calculated
     wire [15:0] first_row1 = -image_in[7:0] - 2*image_in[15:8];
     wire [15:0] first_row2 = 2 * image_in[31:24] + image_in[39:32];
     wire [15:0] second_row1 = -4*image_in[7+40:40] - 8*image_in[15+40:8+40];

@@ -18,6 +18,7 @@ module Decoder
     input clk, rst,
     input bit,
     input is_new,
+    input[15:0] command,
     inout[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
     output[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
     output histogram_RAM_WE,
@@ -94,8 +95,8 @@ module Decoder
         .clk(clk), 
         .rst(rst),
         .image_table(idct_out),
-        .start(is_idct_valid),
-        .is_first_table(1),    
+        .start_histogram(is_idct_valid),
+        .start_CDF(1),                              //TODO: Connect cdf command to meaningfull thing
         .histogram_RAM_data(histogram_RAM_data),
         .histogram_RAM_address(histogram_RAM_address),
         .histogram_RAM_WE(histogram_RAM_WE)
