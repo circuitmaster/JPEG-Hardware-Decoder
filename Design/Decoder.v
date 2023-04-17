@@ -56,7 +56,7 @@ module Decoder
         .valid(is_table_valid)
     );
     
-    idct_complete idct(
+    IDCT2 idct(
         .clk(clk),
         .rst(rst),
         .s_valid(is_table_valid),
