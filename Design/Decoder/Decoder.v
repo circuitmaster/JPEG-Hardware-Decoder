@@ -10,7 +10,12 @@ module Decoder
     parameter IMAGE_WIDTH = 320,
     parameter IMAGE_HEIGHT = 240,
     parameter PIXEL_WIDTH = 8,
-    parameter TABLE_SIZE = 64,
+    parameter TABLE_SIZE = 64,    
+    parameter TABLE_EDGE_SIZE = $rtoi($sqrt(TABLE_SIZE)),
+    parameter BLOCK_WIDTH_SIZE = IMAGE_WIDTH/TABLE_EDGE_SIZE,
+    parameter BLOCK_WIDTH_INDEX_SIZE = $rtoi($ceil($clog2(BLOCK_WIDTH_SIZE))),
+    parameter BLOCK_HEIGHT_SIZE = IMAGE_HEIGHT/TABLE_EDGE_SIZE,
+    parameter BLOCK_HEIGHT_INDEX_SIZE = $rtoi($ceil($clog2(BLOCK_HEIGHT_SIZE))),
     parameter IMAGE_RAM_ADDRESS_WIDTH = $rtoi($ceil($clog2(IMAGE_WIDTH*IMAGE_HEIGHT))),
     parameter HISTOGRAM_RAM_ADDRESS_WIDTH = PIXEL_WIDTH,
     parameter HISTOGRAM_RAM_DATA_WIDTH = $rtoi($ceil($clog2(IMAGE_WIDTH*IMAGE_HEIGHT)))
@@ -21,12 +26,24 @@ module Decoder
     input[15:0] command,
     inout[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
     output[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
-    output histogram_RAM_WE,
+    output histogram_RAM_CE, histogram_RAM_WE,
     output[IMAGE_RAM_ADDRESS_WIDTH-1:0] image_RAM_address,
     output[PIXEL_WIDTH-1:0] image_RAM_data,
-    output image_RAM_WE
+    output image_RAM_CE, image_RAM_WE,
+    output[BLOCK_WIDTH_INDEX_SIZE-1:0] decoded_width_block_index,
+    output[BLOCK_HEIGHT_INDEX_SIZE-1:0] decoded_height_block_index,
+    output histogram_generated,
+    output CDF_generated,
+    output[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF_min
 );
-
+    //Commands
+    localparam EDGE_DETECTION = 16'hA010;    
+    localparam EDGE_ENHANCEMENT = 16'hA020;    
+    localparam NOISE_FILTERING = 16'hA030;    
+    localparam HISTOGRAM_STATISTICS = 16'hA040;    
+    localparam HISTOGRAM_EQUALIZATION = 16'hA050;    
+    localparam BOUNDARY_EXTRACTION = 16'hA060;  
+    
     wire[3:0] r_value;
     wire[7:0] coefficient;
     wire is_new_coefficient;
@@ -36,6 +53,10 @@ module Decoder
     
     wire[64*8-1:0] idct_out;
     wire is_idct_valid;
+    
+    wire start_CDF;
+    assign start_CDF = (command == HISTOGRAM_EQUALIZATION && histogram_generated);
+    
     
     Number_Generator number_generator(
         .clk(clk), 
@@ -71,6 +92,11 @@ module Decoder
         .IMAGE_HEIGHT(IMAGE_HEIGHT),
         .PIXEL_WIDTH(PIXEL_WIDTH),
         .TABLE_SIZE(TABLE_SIZE),
+        .TABLE_EDGE_SIZE(TABLE_EDGE_SIZE),
+        .BLOCK_WIDTH_SIZE(BLOCK_WIDTH_SIZE),
+        .BLOCK_WIDTH_INDEX_SIZE(BLOCK_WIDTH_INDEX_SIZE),
+        .BLOCK_HEIGHT_SIZE(BLOCK_HEIGHT_SIZE),
+        .BLOCK_HEIGHT_INDEX_SIZE(BLOCK_HEIGHT_INDEX_SIZE),
         .IMAGE_RAM_ADDRESS_WIDTH(IMAGE_RAM_ADDRESS_WIDTH)
     )
     image_generator(
@@ -80,7 +106,10 @@ module Decoder
         .start(is_idct_valid),
         .image_RAM_address(image_RAM_address),
         .image_RAM_data(image_RAM_data),
-        .image_RAM_WE(image_RAM_WE)
+        .image_RAM_CE(image_RAM_CE),
+        .image_RAM_WE(image_RAM_WE),
+        .decoded_width_block_index(decoded_width_block_index),
+        .decoded_height_block_index(decoded_height_block_index)
     );
     
     Histogram_Generator #(
@@ -96,10 +125,14 @@ module Decoder
         .rst(rst),
         .image_table(idct_out),
         .start_histogram(is_idct_valid),
-        .start_CDF(1),                              //TODO: Connect cdf command to meaningfull thing
+        .start_CDF(start_CDF),
         .histogram_RAM_data(histogram_RAM_data),
         .histogram_RAM_address(histogram_RAM_address),
-        .histogram_RAM_WE(histogram_RAM_WE)
+        .histogram_RAM_CE(histogram_RAM_CE),
+        .histogram_RAM_WE(histogram_RAM_WE),
+        .histogram_generated(histogram_generated),
+        .CDF_generated(CDF_generated),
+        .CDF_min(CDF_min)
     );
 
 endmodule

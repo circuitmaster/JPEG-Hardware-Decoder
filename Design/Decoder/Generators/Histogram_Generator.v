@@ -20,7 +20,10 @@ module Histogram_Generator
     input start_histogram, start_CDF,
     inout[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
     output reg[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
-    output reg histogram_RAM_WE
+    output reg histogram_RAM_CE, histogram_RAM_WE,
+    output reg histogram_generated,
+    output reg CDF_generated,
+    output reg[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF_min
 );
     //Constants
     localparam TABLE_EDGE_SIZE = $rtoi($sqrt(TABLE_SIZE));
@@ -46,14 +49,17 @@ module Histogram_Generator
 
     //Control signals
     always @(*) begin
+        histogram_RAM_CE <= 1'b0;
+        histogram_RAM_WE <= 1'b0;
+
         if(state == READ_HISTOGRAM || state == WRITE_HISTOGRAM) begin
             histogram_RAM_address <= image_table[(table_width_index + table_height_index*TABLE_EDGE_SIZE)*PIXEL_WIDTH +: PIXEL_WIDTH];
         end else begin
             histogram_RAM_address <= CDF_index;            
         end
-        histogram_RAM_WE <= 1'b0;
         
         if(state == WRITE_HISTOGRAM || state == WRITE_CDF) begin
+            histogram_RAM_CE <= 1'b1;
             histogram_RAM_WE <= 1'b1;
         end
     end
@@ -63,7 +69,13 @@ module Histogram_Generator
         if(rst) begin
             state <= WAIT_FOR_COMMAND;
             histogram_RAM_data_reg <= {HISTOGRAM_RAM_DATA_WIDTH{1'b0}};
+            histogram_generated <= 1'b0;
+            CDF_generated <= 1'b0;
+            CDF_min <= {HISTOGRAM_RAM_DATA_WIDTH{1'b0}};
         end else begin
+            histogram_generated <= 1'b0;
+            CDF_generated <= 1'b0;
+        
             case(state)
                 WAIT_FOR_COMMAND: begin
                     if(start_histogram) begin
@@ -79,6 +91,7 @@ module Histogram_Generator
                 WRITE_HISTOGRAM: begin
                     if(table_width_index == TABLE_EDGE_SIZE-1 && table_height_index == TABLE_EDGE_SIZE-1) begin
                         state <= WAIT_FOR_COMMAND;
+                        histogram_generated <= 1'b1;
                     end else begin
                         state <= READ_HISTOGRAM;
                     end
@@ -90,7 +103,11 @@ module Histogram_Generator
                 WRITE_CDF: begin
                     if(CDF_index == $pow(HISTOGRAM_RAM_ADDRESS_WIDTH, 2) - 1) begin
                         state <= WAIT_FOR_COMMAND;
+                        CDF_generated <= 1'b1;
                     end else begin
+                        if(CDF_index == {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}})
+                            CDF_min <= histogram_RAM_data_reg;
+                            
                         state <= READ_CDF;
                     end
                 end
