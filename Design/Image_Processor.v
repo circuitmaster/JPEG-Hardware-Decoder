@@ -188,6 +188,7 @@ module Image_Processor
         .image_generated(image_generated),
         .histogram_generated(histogram_generated),
         .CDF_generated(CDF_generated),
+        .CDF_min(CDF_min),
         .histogram_RAM_data_input(filter_histogram_RAM_data_input),
         .old_value_RAM_data_input(old_value_RAM_data_input),
         .image_RAM_data_input(filter_image_RAM_data_input),

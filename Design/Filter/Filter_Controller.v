@@ -117,7 +117,7 @@ module Filter_Controller
                     absolute_image_height_index >= $signed(IMAGE_HEIGHT);
                     
     assign is_there_enough_decoded_block  = 
-                    image_generated ||
+                    image_generated_reg ||
                     absolute_image_height_index < $signed(decoded_height_block_index * TABLE_EDGE_SIZE) ||
                     (absolute_image_height_index < $signed((decoded_height_block_index + 1) * TABLE_EDGE_SIZE) &&
                     absolute_image_width_index <  $signed(decoded_width_block_index * TABLE_EDGE_SIZE));

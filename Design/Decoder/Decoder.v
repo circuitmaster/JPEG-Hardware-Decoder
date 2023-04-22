@@ -56,8 +56,12 @@ module Decoder
     wire is_idct_valid;
     
     wire start_CDF;
-    assign start_CDF = (command == HISTOGRAM_EQUALIZATION && histogram_generated);
+    wire histogram_generated_signal;
     
+    assign start_CDF = (command == HISTOGRAM_EQUALIZATION && histogram_generated);
+    assign histogram_generated = histogram_generated_signal && 
+           decoded_width_block_index == BLOCK_WIDTH_SIZE && 
+           decoded_height_block_index == BLOCK_HEIGHT_SIZE;
     
     Number_Generator number_generator(
         .clk(clk), 
@@ -135,7 +139,7 @@ module Decoder
         .histogram_RAM_address(histogram_RAM_address),
         .histogram_RAM_CE(histogram_RAM_CE),
         .histogram_RAM_WE(histogram_RAM_WE),
-        .histogram_generated(histogram_generated),
+        .histogram_generated(histogram_generated_signal),
         .CDF_generated(CDF_generated),
         .CDF_min(CDF_min)
     );
