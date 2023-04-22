@@ -26,10 +26,9 @@ module Image_Processor_Test;
         .tx(tx)
     );
     
-    
     integer file, char, char_count, i, j;
     reg[7:0] line;
-    
+   
     initial begin
         //Reset Module
         @(posedge clk)
@@ -47,9 +46,15 @@ module Image_Processor_Test;
             end
         end
         
+//        @(posedge image_processor.image_generated)
+        
         file = $fopen("ImageProcessorImageRam.txt", "w");
-        for(i=0; i<2**image_processor.IMAGE_RAM_ADDRESS_WIDTH; i=i+1) begin
-            $fwriteh(file, image_processor.image_ram.ram[i]);
+        for(i=0; i<image_processor.IMAGE_HEIGHT; i=i+1) begin
+            for(j=0; j<image_processor.IMAGE_WIDTH; j=j+1) begin
+                $fwriteh(file, image_processor.image_ram.ram[j+i*image_processor.IMAGE_WIDTH]);
+                $fwrite(file, " ");
+            end
+            $fdisplay(file);
         end
         
         $fclose(file);  
@@ -58,7 +63,8 @@ module Image_Processor_Test;
     task get_byte();
     begin
         char_count = 0;
-        while(char_count < 8) begin
+        char = 0;
+        while(char_count < 8 && char != -1) begin
             char = $fgetc(file);
             if(char == "1") begin
                 line[char_count] = 1'b1;

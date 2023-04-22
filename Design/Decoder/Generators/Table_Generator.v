@@ -78,7 +78,7 @@ module Table_Generator(
         quantization_param <= quantization_params_memory[zigzag_params_memory[counter+r_value]];
         
         if(counter == 0) begin
-            multiplication_result <= {{8{coefficient[7]}}, real_coefficient} * {{8{quantization_param[7]}}, quantization_param};
+            multiplication_result <= {{8{real_coefficient[7]}}, real_coefficient} * {{8{quantization_param[7]}}, quantization_param};
         end else begin
             multiplication_result <= {{8{coefficient[7]}}, coefficient} * {{8{quantization_param[7]}}, quantization_param};
         end
