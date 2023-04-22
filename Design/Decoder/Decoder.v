@@ -10,6 +10,7 @@ module Decoder
     parameter IMAGE_WIDTH = 320,
     parameter IMAGE_HEIGHT = 240,
     parameter PIXEL_WIDTH = 8,
+    parameter DC_OFFSET = 128,
     parameter TABLE_SIZE = 64,    
     parameter TABLE_EDGE_SIZE = $rtoi($sqrt(TABLE_SIZE)),
     parameter BLOCK_WIDTH_SIZE = IMAGE_WIDTH/TABLE_EDGE_SIZE,
@@ -24,16 +25,16 @@ module Decoder
     input bit,
     input is_new,
     input[15:0] command,
-    inout[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
+    input[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data_input,
+    output[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data_output,
     output[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
     output histogram_RAM_CE, histogram_RAM_WE,
     output[IMAGE_RAM_ADDRESS_WIDTH-1:0] image_RAM_address,
-    output[PIXEL_WIDTH-1:0] image_RAM_data,
+    output[PIXEL_WIDTH-1:0] image_RAM_data_output,
     output image_RAM_CE, image_RAM_WE,
     output[BLOCK_WIDTH_INDEX_SIZE-1:0] decoded_width_block_index,
     output[BLOCK_HEIGHT_INDEX_SIZE-1:0] decoded_height_block_index,
-    output histogram_generated,
-    output CDF_generated,
+    output image_generated, histogram_generated, CDF_generated,
     output[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF_min
 );
     //Commands
@@ -91,6 +92,7 @@ module Decoder
         .IMAGE_WIDTH(IMAGE_WIDTH),
         .IMAGE_HEIGHT(IMAGE_HEIGHT),
         .PIXEL_WIDTH(PIXEL_WIDTH),
+        .DC_OFFSET(DC_OFFSET),
         .TABLE_SIZE(TABLE_SIZE),
         .TABLE_EDGE_SIZE(TABLE_EDGE_SIZE),
         .BLOCK_WIDTH_SIZE(BLOCK_WIDTH_SIZE),
@@ -105,18 +107,20 @@ module Decoder
         .image_table(idct_out),
         .start(is_idct_valid),
         .image_RAM_address(image_RAM_address),
-        .image_RAM_data(image_RAM_data),
+        .image_RAM_data(image_RAM_data_output),
         .image_RAM_CE(image_RAM_CE),
         .image_RAM_WE(image_RAM_WE),
         .decoded_width_block_index(decoded_width_block_index),
-        .decoded_height_block_index(decoded_height_block_index)
+        .decoded_height_block_index(decoded_height_block_index),
+        .image_generated(image_generated)
     );
     
     Histogram_Generator #(
         .IMAGE_WIDTH(IMAGE_WIDTH),
         .IMAGE_HEIGHT(IMAGE_HEIGHT),
-        .PIXEL_WIDTH(PIXEL_WIDTH),
         .TABLE_SIZE(TABLE_SIZE),
+        .PIXEL_WIDTH(PIXEL_WIDTH),
+        .DC_OFFSET(DC_OFFSET),
         .HISTOGRAM_RAM_ADDRESS_WIDTH(HISTOGRAM_RAM_ADDRESS_WIDTH),
         .HISTOGRAM_RAM_DATA_WIDTH(HISTOGRAM_RAM_DATA_WIDTH)
     )
@@ -126,7 +130,8 @@ module Decoder
         .image_table(idct_out),
         .start_histogram(is_idct_valid),
         .start_CDF(start_CDF),
-        .histogram_RAM_data(histogram_RAM_data),
+        .histogram_RAM_data_input(histogram_RAM_data_input),
+        .histogram_RAM_data_output(histogram_RAM_data_output),
         .histogram_RAM_address(histogram_RAM_address),
         .histogram_RAM_CE(histogram_RAM_CE),
         .histogram_RAM_WE(histogram_RAM_WE),

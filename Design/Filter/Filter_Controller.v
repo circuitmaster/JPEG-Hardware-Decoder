@@ -31,9 +31,12 @@ module Filter_Controller
     input is_image_RAM_available, is_histogram_RAM_available,
     input[BLOCK_WIDTH_INDEX_SIZE-1:0] decoded_width_block_index,
     input[BLOCK_HEIGHT_INDEX_SIZE-1:0] decoded_height_block_index,
-    input[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
-    inout[PIXEL_WIDTH-1:0] old_value_RAM_data,
-    inout[PIXEL_WIDTH-1:0] image_RAM_data,
+    input image_generated,
+    input[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data_input,
+    input[PIXEL_WIDTH-1:0] old_value_RAM_data_input,
+    input[PIXEL_WIDTH-1:0] image_RAM_data_input,
+    output reg[PIXEL_WIDTH-1:0] old_value_RAM_data_output,
+    output reg[PIXEL_WIDTH-1:0] image_RAM_data_output,
     output reg[SWIPER_SIZE*PIXEL_WIDTH-1:0] swiper_output,
     output reg[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF,
     output reg histogram_RAM_CE,
@@ -90,19 +93,16 @@ module Filter_Controller
     reg image_filtering_done;
     reg[IMAGE_RAM_ADDRESS_WIDTH-1:0] image_transfer_index;
     reg[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_transfer_index;
+    reg image_generated_reg;
     
     //Helper signals
     wire is_leftmost_block;
     wire is_there_enough_decoded_block;
     
     //Signals that indicate padded image coordinates
-    wire[PADDED_IMAGE_WIDTH_INDEX_SIZE-1:0] absolute_image_width_index;
-    wire[PADDED_IMAGE_HEIGHT_INDEX_SIZE-1:0] absolute_image_height_index;    
+    wire signed[PADDED_IMAGE_WIDTH_INDEX_SIZE:0] absolute_image_width_index;
+    wire signed[PADDED_IMAGE_HEIGHT_INDEX_SIZE:0] absolute_image_height_index;    
     wire is_coordinate_outside_of_image;
-    
-    //RAM signals
-    reg[PIXEL_WIDTH-1:0] old_value_RAM_data_signal;
-    reg[PIXEL_WIDTH-1:0] image_RAM_data_signal;
     
     //Helper assignments
     assign is_leftmost_block = image_width_index == {IMAGE_WIDTH_INDEX_SIZE{1'b0}};
@@ -111,19 +111,18 @@ module Filter_Controller
     assign absolute_image_width_index = image_width_index + swiper_width_index - PADDING_SIZE;
     assign absolute_image_height_index = image_height_index + swiper_height_index - PADDING_SIZE;
     assign is_coordinate_outside_of_image = 
-                    absolute_image_width_index < {PADDED_IMAGE_WIDTH_INDEX_SIZE{1'b0}} ||
-                    absolute_image_height_index < {PADDED_IMAGE_HEIGHT_INDEX_SIZE{1'b0}} ||
-                    absolute_image_width_index >= IMAGE_WIDTH ||
-                    absolute_image_height_index >= IMAGE_HEIGHT;
+                    absolute_image_width_index < $signed({PADDED_IMAGE_WIDTH_INDEX_SIZE+1{1'b0}}) ||
+                    absolute_image_height_index < $signed({PADDED_IMAGE_HEIGHT_INDEX_SIZE+1{1'b0}}) ||
+                    absolute_image_width_index >= $signed(IMAGE_WIDTH) ||
+                    absolute_image_height_index >= $signed(IMAGE_HEIGHT);
                     
     assign is_there_enough_decoded_block  = 
-                    absolute_image_height_index < decoded_height_block_index * TABLE_EDGE_SIZE ||
-                    (absolute_image_height_index < (decoded_height_block_index + 1) * TABLE_EDGE_SIZE &&
-                     absolute_image_width_index <  decoded_width_block_index * TABLE_EDGE_SIZE);
+                    image_generated ||
+                    absolute_image_height_index < $signed(decoded_height_block_index * TABLE_EDGE_SIZE) ||
+                    (absolute_image_height_index < $signed((decoded_height_block_index + 1) * TABLE_EDGE_SIZE) &&
+                    absolute_image_width_index <  $signed(decoded_width_block_index * TABLE_EDGE_SIZE));
     
-    assign old_value_RAM_data = old_value_RAM_WE ? old_value_RAM_data_signal : {PIXEL_WIDTH{1'bZ}};
-    assign image_RAM_data = image_RAM_CE && image_RAM_WE ? image_RAM_data_signal : {PIXEL_WIDTH{1'bZ}};
-    
+
     always @(*) begin
         for(i=0; i<SWIPER_SIZE; i=i+1) begin
             swiper_output[i*PIXEL_WIDTH +: PIXEL_WIDTH] <= swiper[i];
@@ -138,11 +137,11 @@ module Filter_Controller
         histogram_RAM_address <= {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}};
         old_value_RAM_WE <= 1'b0;
         old_value_RAM_address <= {OLD_VALUE_RAM_ADDRESS_WIDTH{1'b0}};
-        old_value_RAM_data_signal <= {PIXEL_WIDTH{1'b0}};
+        old_value_RAM_data_output <= {PIXEL_WIDTH{1'b0}};
         image_RAM_CE <= 1'b0;
         image_RAM_WE <= 1'b0;
         image_RAM_address <= {IMAGE_RAM_ADDRESS_WIDTH{1'b0}};
-        image_RAM_data_signal <= {PIXEL_WIDTH{1'b0}};
+        image_RAM_data_output <= {PIXEL_WIDTH{1'b0}};
         fill <= 1'b0;
         pixel_value <= {PIXEL_WIDTH{1'b0}};
         UART_data <= 8'b0;
@@ -159,7 +158,7 @@ module Filter_Controller
                         end else begin
                             old_value_RAM_address <= absolute_image_width_index + IMAGE_WIDTH;
                         end
-                    end else if(is_image_RAM_available && is_histogram_RAM_available) begin
+                    end else if(is_image_RAM_available && is_histogram_RAM_available && is_there_enough_decoded_block) begin
                         image_RAM_CE <= 1'b1;
                         image_RAM_address <= absolute_image_width_index + absolute_image_height_index * IMAGE_WIDTH;
                         histogram_RAM_CE <= 1'b1;
@@ -174,11 +173,11 @@ module Filter_Controller
                     pixel_value <= {PIXEL_WIDTH{1'b0}};
                 end else begin
                     if(swiper_height_index < PADDING_SIZE) begin
-                        pixel_value <= old_value_RAM_data;
+                        pixel_value <= old_value_RAM_data_input;
                     end else begin
-                        pixel_value <= image_RAM_data;
+                        pixel_value <= image_RAM_data_input;
                         old_value_RAM_WE <= 1'b1;
-                        old_value_RAM_data_signal <= image_RAM_data;
+                        old_value_RAM_data_output <= image_RAM_data_input;
                         
                         if(image_height_index[0] == 1'b0) begin
                             old_value_RAM_address <= absolute_image_width_index;
@@ -193,7 +192,7 @@ module Filter_Controller
                     image_RAM_CE <= 1'b1;
                     image_RAM_WE <= 1'b1;
                     image_RAM_address <= image_width_index + image_height_index * IMAGE_WIDTH;
-                    image_RAM_data_signal <= filtered_pixel;
+                    image_RAM_data_output <= filtered_pixel;
                 end
             end
             TRANSFER_IMAGE_READ: begin
@@ -204,7 +203,7 @@ module Filter_Controller
             end
             TRANSFER_IMAGE_WRITE: begin
                 if(UART_ready) begin
-                    UART_data <= image_RAM_data;
+                    UART_data <= image_RAM_data_input;
                     UART_is_new <= 1'b1;
                 end
             end
@@ -216,7 +215,7 @@ module Filter_Controller
             end
             TRANSFER_HISTOGRAM_WRITE: begin
                 if(UART_ready) begin
-                    UART_data <= histogram_RAM_data;
+                    UART_data <= histogram_RAM_data_input;
                     UART_is_new <= 1'b1;
                 end
             end
@@ -232,6 +231,7 @@ module Filter_Controller
             swiper_height_index <= {SWIPER_EDGE_INDEX_SIZE{1'b0}};
             image_width_index <= {IMAGE_WIDTH_INDEX_SIZE{1'b0}};
             image_height_index <= {IMAGE_HEIGHT_INDEX_SIZE{1'b0}};
+            histogram_reg <= {HISTOGRAM_RAM_DATA_WIDTH{1'b0}};
             image_filtering_done <= 1'b0;
         end else begin 
             if(state == WRITE_BACK_PIXEL && is_image_RAM_available) begin
@@ -241,7 +241,7 @@ module Filter_Controller
             if(!stop) begin
                 if(fill) begin
                     swiper[swiper_width_index+swiper_height_index*SWIPER_EDGE_SIZE] <= pixel_value;
-                    histogram_reg <= histogram_RAM_data;
+                    histogram_reg <= histogram_RAM_data_input;
                             
                     if(!is_leftmost_block && swiper_height_index == {SWIPER_EDGE_INDEX_SIZE{1'b0}}) begin
                         //Shift Swiper to the left (Don't do anything to rightmost slots, they will be filled one by one)
@@ -291,8 +291,14 @@ module Filter_Controller
     always @(posedge clk) begin
         if(rst) begin
             state <= WAIT_FOR_COMMAND;
+            image_transfer_index <= {IMAGE_RAM_ADDRESS_WIDTH{1'b0}};
+            histogram_transfer_index <= {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}};
+            image_generated_reg <= 1'b0;
         end else begin
             if(!stop) begin
+                if(image_generated)
+                    image_generated_reg <= 1'b1;
+            
                 case(state)
                     WAIT_FOR_COMMAND: begin
                         case(command)
@@ -307,7 +313,7 @@ module Filter_Controller
                     FETCH_PIXEL: begin
                         if(is_coordinate_outside_of_image || 
                            swiper_height_index < PADDING_SIZE || 
-                           (is_image_RAM_available && is_histogram_RAM_available)) 
+                           (is_image_RAM_available && is_histogram_RAM_available && is_there_enough_decoded_block)) 
                         begin
                             state <= LOAD_PIXEL;
                         end
@@ -337,6 +343,7 @@ module Filter_Controller
                         if(UART_ready) begin
                             if(image_transfer_index == IMAGE_WIDTH*IMAGE_HEIGHT-1) begin
                                 image_transfer_index = {IMAGE_RAM_ADDRESS_WIDTH{1'b0}};
+                                image_generated_reg <= 1'b0;
                                 state <= WAIT_FOR_COMMAND;
                             end else begin
                                 image_transfer_index <= image_transfer_index + 1;
@@ -353,6 +360,7 @@ module Filter_Controller
                         if(UART_ready) begin
                             if(histogram_transfer_index == 2**HISTOGRAM_RAM_ADDRESS_WIDTH-1) begin
                                 histogram_transfer_index <= {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}};
+                                image_generated_reg <= 1'b0;
                                 state <= WAIT_FOR_COMMAND;
                             end else begin
                                 histogram_transfer_index <= histogram_transfer_index + 1;

@@ -16,26 +16,30 @@ module Image_Processor_Test;
     //Change clock with given period
     always #(PERIOD/2) clk = ~clk;
     
-    Image_Processor image_processor(
+    Image_Processor #(
+        .CLK_FREQ(1_000_000_000/PERIOD),
+        .BAUD_RATE(BAUD_RATE)
+    ) image_processor(
         .clk(clk), 
         .rst(rst),
         .rx(rx),
         .tx(tx)
     );
     
-    integer fd, i;
+    
+    integer file, char, char_count, i, j;
     reg[7:0] line;
+    
     initial begin
         //Reset Module
         @(posedge clk)
-        rst <= 1'b1;
+        rst = 1'b1;
         @(posedge clk)
-        rst <= 1'b0;
+        rst = 1'b0;
         
-        fd = $fopen("ImageProcessorTest.txt", "r");  
-        
-        while (!$feof(fd)) begin
-            $fgets(line, fd);
+        file = $fopen("ImageProcessorTest.txt", "r");  
+        while (!$feof(file)) begin
+            get_byte();
             
             for(i=0; i<8; i=i+1) begin
                 send_byte(line);
@@ -43,8 +47,30 @@ module Image_Processor_Test;
             end
         end
         
-        $fclose(fd);  
+        file = $fopen("ImageProcessorImageRam.txt", "w");
+        for(i=0; i<2**image_processor.IMAGE_RAM_ADDRESS_WIDTH; i=i+1) begin
+            $fwriteh(file, image_processor.image_ram.ram[i]);
+        end
+        
+        $fclose(file);  
     end
+    
+    task get_byte();
+    begin
+        char_count = 0;
+        while(char_count < 8) begin
+            char = $fgetc(file);
+            if(char == "1") begin
+                line[char_count] = 1'b1;
+                char_count = char_count+1;
+            end
+            if(char == "0") begin
+                line[char_count] = 1'b0;
+                char_count = char_count+1;
+            end
+        end
+    end
+    endtask
     
     task send_byte(input[7:0] byte);
     begin
@@ -62,8 +88,8 @@ module Image_Processor_Test;
     
     task send_bit(input bit);
     begin
-        for(i=0; i<TIMER_LIMIT; i=i+1) begin
-            rx <= bit;
+        for(j=0; j<TIMER_LIMIT; j=j+1) begin
+            rx = bit;
             @(posedge clk);
         end
     end

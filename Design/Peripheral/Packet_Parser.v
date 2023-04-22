@@ -34,11 +34,11 @@ module Packet_Parser
             command <= {COMMAND_WIDTH{1'b0}};
             state <= 2'b0;
             data_reg <= {COMMAND_WIDTH{1'b0}};
-            data_reg_index <= {COMMAND_INDEX_WIDTH{1'b0}};
+            data_reg_index <= COMMAND_WIDTH-1;
         end else begin
-            if(is_new_input_bit) begin
-                case(state)
-                    DECODE_HEADER: begin
+            case(state)
+                DECODE_HEADER: begin
+                    if(is_new_input_bit)begin
                         data_reg[data_reg_index] <= input_bit;
                     
                         if(data_reg_index == {COMMAND_INDEX_WIDTH{1'b0}}) begin
@@ -50,7 +50,9 @@ module Packet_Parser
                             data_reg_index <= data_reg_index - 1;
                         end
                     end
-                    DECODE_COMMAND: begin
+                end
+                DECODE_COMMAND: begin
+                    if(is_new_input_bit) begin
                         data_reg[data_reg_index] <= input_bit;
                     
                         if(data_reg_index == {COMMAND_INDEX_WIDTH{1'b0}}) begin
@@ -61,12 +63,12 @@ module Packet_Parser
                             data_reg_index <= data_reg_index - 1;
                         end
                     end
-                    DECODE_IMAGE: begin
-                        output_bit <= input_bit;
-                        is_new_output_bit <= is_new_input_bit;
-                    end
-                endcase
-            end
+                end
+                DECODE_IMAGE: begin
+                    output_bit <= input_bit;
+                    is_new_output_bit <= is_new_input_bit;
+                end
+            endcase
         end
     end
 

@@ -5,18 +5,21 @@
 
 `timescale 1ns / 1ps
 
-module Image_Processor(
+module Image_Processor
+#(
+    parameter CLK_FREQ = 100_000_000,
+    parameter BAUD_RATE = 115_200
+)(
     input clk, rst,
     input rx,
     output tx
 );
     //Parameters
-    localparam CLK_FREQ = 100_000_000;
-    localparam BAUD_RATE = 115_200;
     localparam COMMAND_WIDTH = 16;
     localparam IMAGE_WIDTH = 320;
     localparam IMAGE_HEIGHT = 240;
     localparam PIXEL_WIDTH = 8;
+    localparam DC_OFFSET = 128;
     localparam TABLE_SIZE = 64;
     localparam TABLE_EDGE_SIZE = $rtoi($sqrt(TABLE_SIZE));
     localparam BLOCK_WIDTH_SIZE = IMAGE_WIDTH/TABLE_EDGE_SIZE;
@@ -44,41 +47,40 @@ module Image_Processor(
     //RAM
     wire image_RAM_WE, image_RAM_CE;
     wire[IMAGE_RAM_ADDRESS_WIDTH-1:0] image_RAM_address;
-    wire[PIXEL_WIDTH-1:0] image_RAM_data;
+    wire[PIXEL_WIDTH-1:0] image_RAM_data_input, image_RAM_data_output;
     
     wire histogram_RAM_WE, histogram_RAM_CE;
     wire[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address;
-    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data;
+    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data_input, histogram_RAM_data_output;
 
     wire old_value_RAM_WE;
     wire[OLD_VALUE_RAM_ADDRESS_WIDTH-1:0] old_value_RAM_address;
-    wire[PIXEL_WIDTH-1:0] old_value_RAM_data;
+    wire[PIXEL_WIDTH-1:0] old_value_RAM_data_input, old_value_RAM_data_output;
     
     wire is_image_RAM_available, is_histogram_RAM_available;
     
     //Decoder RAM signals
     wire decoder_image_RAM_WE, decoder_image_RAM_CE;
     wire[IMAGE_RAM_ADDRESS_WIDTH-1:0] decoder_image_RAM_address;
-    wire[PIXEL_WIDTH-1:0] decoder_image_RAM_data;
+    wire[PIXEL_WIDTH-1:0] decoder_image_RAM_data_output;
     
     wire decoder_histogram_RAM_WE, decoder_histogram_RAM_CE;
     wire[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] decoder_histogram_RAM_address;
-    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] decoder_histogram_RAM_data;
+    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] decoder_histogram_RAM_data_input, decoder_histogram_RAM_data_output;
     
     //Filter RAM signals
     wire filter_image_RAM_WE, filter_image_RAM_CE;
     wire[IMAGE_RAM_ADDRESS_WIDTH-1:0] filter_image_RAM_address;
-    wire[PIXEL_WIDTH-1:0] filter_image_RAM_data;
+    wire[PIXEL_WIDTH-1:0] filter_image_RAM_data_input, filter_image_RAM_data_output;
     
     wire filter_histogram_RAM_CE;
     wire[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] filter_histogram_RAM_address;
-    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] filter_histogram_RAM_data;
+    wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] filter_histogram_RAM_data_input;
     
     //Decoder
     wire[BLOCK_WIDTH_INDEX_SIZE-1:0] decoded_width_block_index;
     wire[BLOCK_HEIGHT_INDEX_SIZE-1:0] decoded_height_block_index;
-    wire histogram_generated;
-    wire CDF_generated;
+    wire image_generated, histogram_generated, CDF_generated;
     wire[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF_min;
     
     
@@ -122,6 +124,7 @@ module Image_Processor(
         .IMAGE_WIDTH(IMAGE_WIDTH),
         .IMAGE_HEIGHT(IMAGE_HEIGHT),
         .PIXEL_WIDTH(PIXEL_WIDTH),
+        .DC_OFFSET(DC_OFFSET),
         .TABLE_SIZE(TABLE_SIZE),
         .TABLE_EDGE_SIZE(TABLE_EDGE_SIZE),
         .BLOCK_WIDTH_SIZE(BLOCK_WIDTH_SIZE),
@@ -138,16 +141,18 @@ module Image_Processor(
         .bit(packet_parser_bit),
         .is_new(packet_parser_is_new),
         .command(command),
-        .histogram_RAM_data(decoder_histogram_RAM_data),
+        .histogram_RAM_data_input(decoder_histogram_RAM_data_input),
+        .histogram_RAM_data_output(decoder_histogram_RAM_data_output),
         .histogram_RAM_address(decoder_histogram_RAM_address),
         .histogram_RAM_CE(decoder_histogram_RAM_CE),
         .histogram_RAM_WE(decoder_histogram_RAM_WE),
         .image_RAM_address(decoder_image_RAM_address),
-        .image_RAM_data(decoder_image_RAM_data),
+        .image_RAM_data_output(decoder_image_RAM_data_output),
         .image_RAM_CE(decoder_image_RAM_CE),
         .image_RAM_WE(decoder_image_RAM_WE),
         .decoded_width_block_index(decoded_width_block_index),
         .decoded_height_block_index(decoded_height_block_index),
+        .image_generated(image_generated),
         .histogram_generated(histogram_generated),
         .CDF_generated(CDF_generated),
         .CDF_min(CDF_min)
@@ -180,11 +185,14 @@ module Image_Processor(
         .is_histogram_RAM_available(is_histogram_RAM_available),
         .decoded_width_block_index(decoded_width_block_index),
         .decoded_height_block_index(decoded_height_block_index),
+        .image_generated(image_generated),
         .histogram_generated(histogram_generated),
         .CDF_generated(CDF_generated),
-        .histogram_RAM_data(filter_histogram_RAM_data),
-        .old_value_RAM_data(old_value_RAM_data),
-        .image_RAM_data(filter_image_RAM_data),
+        .histogram_RAM_data_input(filter_histogram_RAM_data_input),
+        .old_value_RAM_data_input(old_value_RAM_data_input),
+        .image_RAM_data_input(filter_image_RAM_data_input),
+        .old_value_RAM_data_output(old_value_RAM_data_output),
+        .image_RAM_data_output(filter_image_RAM_data_output),
         .histogram_RAM_CE(filter_histogram_RAM_CE),
         .histogram_RAM_address(filter_histogram_RAM_address),
         .old_value_RAM_WE(old_value_RAM_WE),
@@ -207,7 +215,8 @@ module Image_Processor(
         .WE(image_RAM_WE),
         .CE(image_RAM_CE),
         .address(image_RAM_address),
-        .data(image_RAM_data)
+        .data_input(image_RAM_data_output),
+        .data_output(image_RAM_data_input)
     );
     
     RAM
@@ -221,7 +230,8 @@ module Image_Processor(
         .WE(histogram_RAM_WE),
         .CE(histogram_RAM_CE),
         .address(histogram_RAM_address),
-        .data(histogram_RAM_data)
+        .data_input(histogram_RAM_data_output),
+        .data_output(histogram_RAM_data_input)
     );
 
     RAM
@@ -235,7 +245,8 @@ module Image_Processor(
         .WE(old_value_RAM_WE),
         .CE(1'b1),
         .address(old_value_RAM_address),
-        .data(old_value_RAM_data)
+        .data_input(old_value_RAM_data_output),
+        .data_output(old_value_RAM_data_input)
     );
     
     Prio_RAM_Encoder
@@ -250,9 +261,12 @@ module Image_Processor(
         .CE2_input(filter_image_RAM_CE),
         .address1_input(decoder_image_RAM_address), 
         .address2_input(filter_image_RAM_address),
-        .data1_input(decoder_image_RAM_data), 
-        .data2_input(filter_image_RAM_data),
-        .data_output(image_RAM_data),
+        .data1_input(decoder_image_RAM_data_output), 
+        .data2_input(filter_image_RAM_data_output), 
+        .ram_input(image_RAM_data_input), 
+        .data1_output(/*Not Used*/),
+        .data2_output(filter_image_RAM_data_input),
+        .ram_output(image_RAM_data_output),
         .WE_output(image_RAM_WE),
         .CE_output(image_RAM_CE),
         .address_output(image_RAM_address),
@@ -271,9 +285,12 @@ module Image_Processor(
         .CE2_input(filter_histogram_RAM_CE),
         .address1_input(decoder_histogram_RAM_address), 
         .address2_input(filter_histogram_RAM_address),
-        .data1_input(decoder_histogram_RAM_data), 
-        .data2_input(filter_histogram_RAM_data),
-        .data_output(histogram_RAM_data),
+        .data1_input(decoder_histogram_RAM_data_output), 
+        .data2_input({HISTOGRAM_RAM_DATA_WIDTH{1'b0}}), 
+        .ram_input(histogram_RAM_data_input), 
+        .data1_output(decoder_histogram_RAM_data_input),
+        .data2_output(filter_histogram_RAM_data_input),
+        .ram_output(histogram_RAM_data_output),
         .WE_output(histogram_RAM_WE),
         .CE_output(histogram_RAM_CE),
         .address_output(histogram_RAM_address),

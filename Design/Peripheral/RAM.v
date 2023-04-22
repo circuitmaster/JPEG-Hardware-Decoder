@@ -14,26 +14,30 @@ module RAM
     input WE,
     input CE,
     input[ADDRESS_WIDTH-1:0] address,
-    inout[DATA_WIDTH-1:0] data
+    input[DATA_WIDTH-1:0] data_input,
+    output reg[DATA_WIDTH-1:0] data_output
 );
   
     // RAM
     reg[DATA_WIDTH-1:0] ram[2**ADDRESS_WIDTH-1:0];
-    reg[DATA_WIDTH-1:0] data_out;
-    
-    //RAM signals
-    assign data = (CE && !WE) ? data_out : {DATA_WIDTH{1'bz}};
+
+    integer i;
+    initial begin
+        for(i=0; i<2**ADDRESS_WIDTH; i=i+1) begin
+            ram[i] <= {DATA_WIDTH{1'b0}};
+        end
+    end
     
     always @(posedge clk) begin
         if(rst) begin
-            data_out <= {DATA_WIDTH{1'b0}};
+            data_output <= {DATA_WIDTH{1'b0}};
         end else begin
             if(CE) begin
                 if(WE) begin
-                    ram[address] <= data;
+                    ram[address] <= data_input;
                 end
                 
-                data_out <= ram[address];
+                data_output <= ram[address];
             end
         end
     end

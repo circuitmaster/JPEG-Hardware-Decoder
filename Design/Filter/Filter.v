@@ -29,12 +29,13 @@ module Filter
     input is_image_RAM_available, is_histogram_RAM_available,
     input[BLOCK_WIDTH_INDEX_SIZE-1:0] decoded_width_block_index,
     input[BLOCK_HEIGHT_INDEX_SIZE-1:0] decoded_height_block_index,
-    input histogram_generated,
-    input CDF_generated,
+    input image_generated, histogram_generated, CDF_generated,
     input[HISTOGRAM_RAM_DATA_WIDTH-1:0] CDF_min,
-    input[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data,
-    inout[PIXEL_WIDTH-1:0] old_value_RAM_data,
-    inout[PIXEL_WIDTH-1:0] image_RAM_data,
+    input[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_RAM_data_input,
+    input[PIXEL_WIDTH-1:0] old_value_RAM_data_input,
+    input[PIXEL_WIDTH-1:0] image_RAM_data_input,
+    output[PIXEL_WIDTH-1:0] old_value_RAM_data_output,
+    output[PIXEL_WIDTH-1:0] image_RAM_data_output,
     output histogram_RAM_CE,
     output[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_RAM_address,
     output old_value_RAM_WE,
@@ -102,10 +103,13 @@ module Filter
         .is_image_RAM_available(is_image_RAM_available),
         .is_histogram_RAM_available(is_histogram_RAM_available),
         .decoded_width_block_index(decoded_width_block_index),
-        .decoded_height_block_index(decoded_height_block_index),        
-        .histogram_RAM_data(histogram_RAM_data),
-        .old_value_RAM_data(old_value_RAM_data),
-        .image_RAM_data(image_RAM_data),
+        .decoded_height_block_index(decoded_height_block_index),
+        .image_generated(image_generated),
+        .histogram_RAM_data_input(histogram_RAM_data_input),
+        .old_value_RAM_data_input(old_value_RAM_data_input),
+        .image_RAM_data_input(image_RAM_data_input),
+        .old_value_RAM_data_output(old_value_RAM_data_output),
+        .image_RAM_data_output(image_RAM_data_output),
         .swiper_output(swiper_output),
         .CDF(CDF),
         .histogram_RAM_CE(histogram_RAM_CE),
@@ -173,8 +177,9 @@ module Filter
                 end
             end
             HISTOGRAM_EQUALIZATION: begin
+                filtered_pixel <= hist_eq_pixel;
+
                 if(CDF_generated) begin
-                    filtered_pixel <= hist_eq_pixel;
                     filter_controller_command <= FILTER_AND_TRANSFER_IMAGE;
                 end
             end
