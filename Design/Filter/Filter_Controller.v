@@ -151,6 +151,9 @@ module Filter_Controller
             WAIT_FOR_COMMAND: begin
             end
             FETCH_PIXEL: begin
+                histogram_RAM_CE <= 1'b1;
+                histogram_RAM_address <= swiper[(SWIPER_SIZE-1)/2];
+                
                 if(!is_coordinate_outside_of_image) begin
                     if(swiper_height_index < PADDING_SIZE) begin
                         if(image_height_index[0] == swiper_height_index[0]) begin
@@ -161,8 +164,6 @@ module Filter_Controller
                     end else if(is_image_RAM_available && is_histogram_RAM_available && is_there_enough_decoded_block) begin
                         image_RAM_CE <= 1'b1;
                         image_RAM_address <= absolute_image_width_index + absolute_image_height_index * IMAGE_WIDTH;
-                        histogram_RAM_CE <= 1'b1;
-                        histogram_RAM_address <= swiper[(SWIPER_SIZE-1)/2];
                     end
                 end             
             end
