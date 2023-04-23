@@ -11,7 +11,7 @@ module Image_Processor_Test;
     localparam BOUNDARY_EXTRACTION = 16'h60A0;  
     
     //Control Parameters
-    localparam COMMAND = EDGE_DETECTION;
+    localparam COMMAND = HISTOGRAM_EQUALIZATION;
     localparam ENCODED_IMAGE_FILE_PATH = "EncodedImage.txt";
     localparam OUTPUT_FILE_PATH = "ImageProcessorOutput.txt";
     localparam IMAGE_RAM_FILE_PATH = "ImageRam.txt";
