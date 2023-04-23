@@ -46,7 +46,9 @@ module Image_Processor_Test;
             end
         end
         
-//        @(posedge image_processor.image_generated)
+        while(image_processor.filter.filter_controller.state != 4) begin
+            #1;
+        end
         
         file = $fopen("ImageProcessorImageRam.txt", "w");
         for(i=0; i<image_processor.IMAGE_HEIGHT; i=i+1) begin

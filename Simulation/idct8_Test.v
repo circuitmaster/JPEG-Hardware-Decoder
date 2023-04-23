@@ -3,8 +3,6 @@
 module idct8_Test;
     //Period of the clock
     localparam PERIOD = 10;
-
-
     
     //Registers given as input to the module
     reg clk = 1'b0, rst = 1'b0;
