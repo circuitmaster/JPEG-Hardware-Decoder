@@ -23,7 +23,7 @@ module Edge_Y(
     wire [15:0] fourth_col1 = -4*image_in[31:24] - 8*image_in[71:64];
     wire [15:0] fourth_col2 = 8*image_in[151:144] + 4*image_in[191:184];
     wire [15:0] fifth_col1 = -image_in[39:32] - 2*image_in[79:72];
-    wire [15:0] fifth_col2 = 2*image_in[169:162] + image_in[199:192];
+    wire [15:0] fifth_col2 = 2*image_in[159:152] + image_in[199:192];
     
     wire [15:0] first_col = first_col1 + first_col2;
     wire [15:0] second_col = second_col1 + second_col2;

@@ -163,7 +163,7 @@ module Filter
     
         case(command)
             EDGE_DETECTION: begin
-				filtered_pixel <= (edge_pixel_sum > 8'd255) ? 8'd255 : edge_pixel_sum; //TODO: check if this absolute sum is right
+				filtered_pixel <= (edge_pixel_sum > 8'd255) ? 8'd255 : edge_pixel_sum; 
                 filter_controller_command <= FILTER_AND_TRANSFER_IMAGE;
             end
             EDGE_ENHANCEMENT: begin
