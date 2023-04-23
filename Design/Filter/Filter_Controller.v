@@ -90,7 +90,7 @@ module Filter_Controller
     //Helper registers
     reg[PIXEL_WIDTH-1:0] pixel_value;
     reg[HISTOGRAM_RAM_DATA_WIDTH-1:0] histogram_reg;
-    reg image_filtering_done;
+    reg image_filtered;
     reg[IMAGE_RAM_ADDRESS_WIDTH-1:0] image_transfer_index;
     reg[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] histogram_transfer_index;
     reg image_generated_reg;
@@ -232,10 +232,10 @@ module Filter_Controller
             image_width_index <= {IMAGE_WIDTH_INDEX_SIZE{1'b0}};
             image_height_index <= {IMAGE_HEIGHT_INDEX_SIZE{1'b0}};
             histogram_reg <= {HISTOGRAM_RAM_DATA_WIDTH{1'b0}};
-            image_filtering_done <= 1'b0;
+            image_filtered <= 1'b0;
         end else begin 
             if(state == WRITE_BACK_PIXEL && is_image_RAM_available) begin
-                image_filtering_done <= 1'b0;
+                image_filtered <= 1'b0;
             end
         
             if(!stop) begin
@@ -265,7 +265,7 @@ module Filter_Controller
                                 
                                 if(image_height_index == IMAGE_HEIGHT-1) begin
                                     image_height_index <= {IMAGE_HEIGHT_INDEX_SIZE{1'b0}};
-                                    image_filtering_done <= 1'b1;
+                                    image_filtered <= 1'b1;
                                 end else begin
                                     image_height_index <= image_height_index + 1;
                                 end
@@ -327,7 +327,7 @@ module Filter_Controller
                     end
                     WRITE_BACK_PIXEL: begin
                         if(is_image_RAM_available) begin
-                            if(image_filtering_done) begin
+                            if(image_filtered) begin
                                 state <= TRANSFER_IMAGE_READ;
                             end else begin
                                 state <= FETCH_PIXEL;

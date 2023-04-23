@@ -39,7 +39,7 @@ module Histogram_Generator
     localparam WRITE_CDF = 4;
 
     //Registers
-    reg[1:0] state;
+    reg[2:0] state;
     reg[TABLE_EDGE_INDEX_SIZE-1:0] table_width_index;
     reg[TABLE_EDGE_INDEX_SIZE-1:0] table_height_index;
     reg[HISTOGRAM_RAM_ADDRESS_WIDTH-1:0] CDF_index;
@@ -106,7 +106,7 @@ module Histogram_Generator
                 WRITE_CDF: begin
                     CDF <= CDF + histogram_RAM_data_input;
                 
-                    if(CDF_index == $pow(HISTOGRAM_RAM_ADDRESS_WIDTH, 2) - 1) begin
+                    if(CDF_index == 2**HISTOGRAM_RAM_ADDRESS_WIDTH-1) begin
                         state <= WAIT_FOR_COMMAND;
                         CDF <= {HISTOGRAM_RAM_DATA_WIDTH{1'b0}};
                         CDF_generated <= 1'b1;
@@ -142,7 +142,7 @@ module Histogram_Generator
                     table_width_index <= table_width_index + 1;
                 end
             end else if (state == WRITE_CDF) begin
-                if(CDF_index == $pow(HISTOGRAM_RAM_ADDRESS_WIDTH, 2) - 1) begin
+                if(CDF_index == 2**HISTOGRAM_RAM_ADDRESS_WIDTH-1) begin
                     CDF_index <= {HISTOGRAM_RAM_ADDRESS_WIDTH{1'b0}};
                 end else begin
                     CDF_index <= CDF_index + 1;

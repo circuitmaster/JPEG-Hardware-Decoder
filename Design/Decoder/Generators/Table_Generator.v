@@ -12,7 +12,7 @@ module Table_Generator(
     input is_new_coefficient,       //Indicates if coefficient is valid
 
     //Each row is given as outputs
-    output reg[64*8-1:0] table_value,
+    output reg[64*16-1:0] table_value,
     output reg valid
 );
     
@@ -47,7 +47,7 @@ module Table_Generator(
     reg[7:0] quantization_params_memory [0:63];
     
     //Table memory 
-    reg[7:0] table_memory [0:63];
+    reg[15:0] table_memory [0:63];
     
     //Internal registers
     reg[6:0] counter;
@@ -69,7 +69,7 @@ module Table_Generator(
         for(i=0; i<64; i=i+1) begin
             zigzag_params_memory[i] <= zigzag_params[i*8 +: 8];
             quantization_params_memory[i] <= quantization_params[i*8 +: 8];
-            table_memory[i] <= 8'd0;
+            table_memory[i] <= 16'd0;
         end
     end
     
@@ -84,7 +84,7 @@ module Table_Generator(
         end
         
         for(i=0; i<64; i = i + 1) begin
-            table_value[i*8 +: 8] <= table_memory[i];
+            table_value[i*16 +: 16] <= table_memory[i];
         end
         
         if(counter + r_value + 1 == 7'd64 || (counter != 7'b0 && r_value == 4'b0 && coefficient == 8'b0)) begin
@@ -109,14 +109,8 @@ module Table_Generator(
                     prev_dc_val <= dc_coefficient;
                 end
             
-                if(multiplication_result > $signed(16'd127)) begin
-                    table_memory[zigzag_params_memory[counter+r_value]] <= 8'd127;
-                end else if(multiplication_result < $signed(-16'd128)) begin
-                    table_memory[zigzag_params_memory[counter+r_value]] <= -8'd128;
-                end else begin
-                    table_memory[zigzag_params_memory[counter+r_value]] <= multiplication_result;
-                end
-                
+                table_memory[zigzag_params_memory[counter+r_value]] <= multiplication_result;
+
                 counter <= next_counter;
                 
                 if(next_counter == 7'b0) begin
@@ -128,7 +122,7 @@ module Table_Generator(
     
     task reset_table_memory;
         for(i=0; i<64; i = i + 1) begin
-            table_memory[i] <= 8'd0;
+            table_memory[i] <= 16'd0;
         end
     endtask
 endmodule

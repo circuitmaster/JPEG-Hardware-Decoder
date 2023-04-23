@@ -34,20 +34,20 @@ module Packet_Parser
             command <= {COMMAND_WIDTH{1'b0}};
             state <= 2'b0;
             data_reg <= {COMMAND_WIDTH{1'b0}};
-            data_reg_index <= COMMAND_WIDTH-1;
+            data_reg_index <= {COMMAND_INDEX_WIDTH{1'b0}};
         end else begin
             case(state)
                 DECODE_HEADER: begin
                     if(is_new_input_bit)begin
                         data_reg[data_reg_index] <= input_bit;
                     
-                        if(data_reg_index == {COMMAND_INDEX_WIDTH{1'b0}}) begin
-                            data_reg_index <= COMMAND_WIDTH-1;
-                            if({data_reg[COMMAND_WIDTH-1:1], input_bit} == HEADER) begin
+                        if(data_reg_index == COMMAND_WIDTH-1) begin
+                            data_reg_index <= {COMMAND_INDEX_WIDTH{1'b0}};
+                            if({input_bit, data_reg[COMMAND_WIDTH-2:0]} == HEADER) begin
                                 state <= DECODE_COMMAND;
                             end
                         end else begin
-                            data_reg_index <= data_reg_index - 1;
+                            data_reg_index <= data_reg_index + 1;
                         end
                     end
                 end
@@ -55,12 +55,12 @@ module Packet_Parser
                     if(is_new_input_bit) begin
                         data_reg[data_reg_index] <= input_bit;
                     
-                        if(data_reg_index == {COMMAND_INDEX_WIDTH{1'b0}}) begin
-                            data_reg_index <= COMMAND_WIDTH-1;
-                            command <= {data_reg[COMMAND_WIDTH-1:1], input_bit};
+                        if(data_reg_index == COMMAND_WIDTH-1) begin
+                            data_reg_index <= {COMMAND_INDEX_WIDTH{1'b0}};
+                            command <= {input_bit, data_reg[COMMAND_WIDTH-2:0]};
                             state <= DECODE_IMAGE;
                         end else begin
-                            data_reg_index <= data_reg_index - 1;
+                            data_reg_index <= data_reg_index + 1;
                         end
                     end
                 end

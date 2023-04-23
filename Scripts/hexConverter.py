@@ -1,4 +1,4 @@
-with open("idctOutput.txt", mode='r') as file:
+with open("hexValues.txt", mode='r') as file:
     i = 0
     while idct_value := file.read(2):
         idct_value = int(idct_value, 16)

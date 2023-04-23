@@ -47,7 +47,7 @@ module Filter
     output UART_is_new
 );
     //Constants
-    localparam SWIPER_EDGE_SIZE =$rtoi($sqrt(SWIPER_SIZE)); 
+    localparam SWIPER_EDGE_SIZE = $rtoi($sqrt(SWIPER_SIZE)); 
     localparam INNER_SWIPER_SIZE = SWIPER_SIZE - 4*SWIPER_EDGE_SIZE + 4;
     localparam INNER_SWIPER_OFFSET = SWIPER_EDGE_SIZE + 1;
     
@@ -144,8 +144,8 @@ module Filter
     );
     
     Hist_Eq hist_eq(
-        .cdf(CDF),
-        .cdf_min(CDF_min),
+        .cdf({{32-HISTOGRAM_RAM_DATA_WIDTH{1'b0}}, CDF}),
+        .cdf_min({{32-HISTOGRAM_RAM_DATA_WIDTH{1'b0}},CDF_min}),
         .pixel_out(hist_eq_pixel)
     );
     
@@ -160,7 +160,7 @@ module Filter
     
         case(command)
             EDGE_DETECTION: begin
-                filtered_pixel <= edge_x_pixel[6:0] + edge_y_pixel[6:0]; //TODO: check if this absolute sum is right
+				filtered_pixel <= edge_x_pixel[6:0] + edge_y_pixel[6:0]; //TODO: check if this absolute sum is right
                 filter_controller_command <= FILTER_AND_TRANSFER_IMAGE;
             end
             EDGE_ENHANCEMENT: begin

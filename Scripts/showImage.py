@@ -1,7 +1,7 @@
 import numpy as np
 from PIL import Image
 
-with open("ImageProcessorImageRam.txt", mode='rb') as file:
+with open("ImageRam.txt", mode='rb') as file:
     data = np.zeros((240,320))
 
     lines = file.readlines()

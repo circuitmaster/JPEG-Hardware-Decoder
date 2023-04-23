@@ -22,12 +22,10 @@ def get_bit_str(number):
     return bit_str
 
 
-with open("ImageProcessorTest.bin", mode='rb') as input_file:
-    with open("ImageProcessorTest.txt", "w") as output_file:
+with open("EncodedImage.bin", mode='rb') as input_file:
+    with open("EncodedImage.txt", "w") as output_file:
         file_content = input_file.read()
 
-        output_file.write(get_bit_str(HEADER))
-        output_file.write(get_bit_str(EDGE_DETECTION))
         for byte in file_content:
             output_file.write(get_bit_str(byte))
 

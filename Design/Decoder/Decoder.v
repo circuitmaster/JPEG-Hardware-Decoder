@@ -49,7 +49,7 @@ module Decoder
     wire[7:0] coefficient;
     wire is_new_coefficient;
     
-    wire[64*8-1:0] table_value;
+    wire[64*16-1:0] table_value;
     wire is_table_valid;
     
     wire[64*8-1:0] idct_out;
@@ -58,10 +58,10 @@ module Decoder
     wire start_CDF;
     wire histogram_generated_signal;
     
-    assign start_CDF = (command == HISTOGRAM_EQUALIZATION && histogram_generated);
-    assign histogram_generated = histogram_generated_signal && 
-           decoded_width_block_index == BLOCK_WIDTH_SIZE && 
-           decoded_height_block_index == BLOCK_HEIGHT_SIZE;
+    reg image_generated_reg;
+    
+    assign start_CDF = (command == HISTOGRAM_EQUALIZATION && image_generated_reg && histogram_generated_signal);
+    assign histogram_generated = image_generated_reg && histogram_generated_signal;
     
     Number_Generator number_generator(
         .clk(clk), 
@@ -143,6 +143,19 @@ module Decoder
         .CDF_generated(CDF_generated),
         .CDF_min(CDF_min)
     );
+    
+    //Histogram Generated signal control
+    always @(posedge clk) begin
+        if(rst) begin
+            image_generated_reg <= 1'b0;
+        end else begin
+            if(image_generated)
+                image_generated_reg <= 1'b1;
+                
+            if(image_generated_reg && histogram_generated_signal)
+                image_generated_reg <= 1'b0;
+        end
+    end
 
 endmodule
 

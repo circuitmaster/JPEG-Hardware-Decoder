@@ -32,7 +32,7 @@ module IDCT2(
     begin
         for(j = 0; j<8; j = j + 1)
         begin
-            assign data_in_pad[31+(i*32+j*8*32):(i*32+j*8*32)] = {{24{data_in[15+(i*16+j*16*8)]}}, data_in[15+(i*16+j*16*8):(i*16+j*16*8)]};
+            assign data_in_pad[31+(i*32+j*8*32):(i*32+j*8*32)] = {{16{data_in[15+(i*16+j*16*8)]}}, data_in[15+(i*16+j*16*8):(i*16+j*16*8)]};
         end
     end
     
