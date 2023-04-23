@@ -1,3 +1,4 @@
 with open("HistogramRam.txt", mode='rb') as file:
-    for line in file:
-        print(int(line, 16), end=' ')
+    print('Color'.ljust(7) + 'Count')
+    for index, line in enumerate(file):
+        print(f'{index}:'.ljust(7) + f'{int(line, 16)}')
