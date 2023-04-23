@@ -33,7 +33,7 @@ module Edge_Y(
     
     assign tmp = first_col + second_col + third_col + fourth_col + fifth_col;
 
-    assign pixel_out = (tmp > 0) ? tmp : - tmp;
+    assign pixel_out = (tmp > 0) ? tmp>>4 : - tmp>>4;
     
     
 endmodule

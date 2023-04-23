@@ -72,6 +72,7 @@ module Filter
     
     wire[PIXEL_WIDTH-1:0] edge_x_pixel;
     wire[PIXEL_WIDTH-1:0] edge_y_pixel;
+    wire[PIXEL_WIDTH-1:0] edge_pixel_sum;
     wire[PIXEL_WIDTH-1:0] edge_log_pixel;
     wire[PIXEL_WIDTH-1:0] median_pixel;
     wire[PIXEL_WIDTH-1:0] hist_eq_pixel;
@@ -154,13 +155,15 @@ module Filter
         .pixel_out(erosion_pixel)
     );
     
+    assign edge_pixel_sum = edge_x_pixel + edge_y_pixel;
+    
     always @(*) begin
         filtered_pixel <= {PIXEL_WIDTH{1'b0}};
         filter_controller_command <= NO_COMMAND;   
     
         case(command)
             EDGE_DETECTION: begin
-				filtered_pixel <= edge_x_pixel[6:0] + edge_y_pixel[6:0]; //TODO: check if this absolute sum is right
+				filtered_pixel <= (edge_pixel_sum > 8'd255) ? 8'd255 : edge_pixel_sum; //TODO: check if this absolute sum is right
                 filter_controller_command <= FILTER_AND_TRANSFER_IMAGE;
             end
             EDGE_ENHANCEMENT: begin

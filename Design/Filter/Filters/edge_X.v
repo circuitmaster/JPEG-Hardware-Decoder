@@ -32,6 +32,6 @@ module Edge_X(
     
     assign tmp = first_row + second_row + third_row + fourth_row + fifth_row;
 
-    assign pixel_out = (tmp > 0) ? tmp : - tmp;
+    assign pixel_out = (tmp > 0) ? tmp>>4 : - tmp>>4;
     
 endmodule
